@@ -1,16 +1,16 @@
 # Ruthelde
 
 - Software package for simulation and automated fitting of IBA spectra
-- Fitting based on Differential Evolution Algorithm
+- Fitting based on Differential Evolution (DE) algorithm
 
 # How to cite
 
-R. Heller, N.Klingner, N. Clempson, J. Meershaut, RSI ... (2022)
+R. Heller, N. Klingner, N. Claessens, J. Meersschaut, RSI ... (2022)
 
-DOI: xxxxxxxx
+DOI: xxxxx-xxx
 
 
-# Contact Information
+# Contact
 
 r.heller@hzdr.de
 
