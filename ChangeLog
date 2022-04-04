@@ -1,0 +1,67 @@
+
+2021_06_24 - V3.1.1
+
+    - Added "MakeGAFromTarget" and "Save GA"
+    - Added LastFolder functionality to all Plots and Load/Save events
+    - Added some more separators in menu
+    - Removed Debug outputs
+
+2021_12_22 - V5.0
+
+    - Introduced *Default_EA_Inputs.json* were the default values for EA input are stored in
+      This requires that a corresponding file exists in root folder
+
+    - Increased number of Fitness values and number of fit parameters being tracked (and stored) from 1.000 to 10.000
+
+2022_01_20 - V6.0
+
+    - Changed Fit-routine from EA to DE
+
+    - Changed input format for fit parameters accordingly (four parameters remain: N, F, CR, THR)
+
+        N   - population size [default = 20]
+        F   - mutation parameter [default = 0.6]
+        CR  - cross over parameter [default = 0.85]
+        THR - threshold for population diversity repair [default = 0.98]
+
+        THR is the fraction of average fitness to best fitness at which part (5%) of the population is
+        replaced by random individuals in order to get rid of sticking in limited gene pool.
+
+    - Fixed error in reading in simulation file (some parameters were not correctly read since last update)
+    - Re-implemented "Make EA constrains" to have now all EA inputs included
+    - Added fitness to parameter-output-file (stored value is actual fitness value divided by 100)
+
+
+2022_01_31 - V6.1
+
+    - Removed injection of best solution temporarily
+
+2022_02_07 - V7.1
+
+    - Refactored the structure of input data: target constrains are now part of the target model, experimental
+      constrains part of the experimental setup. What remains from original DE constrain is now only the actual DE
+      settings (N, F, CR, THR, ch_min, ch_max, binning) and stop conditions (end time, end fitness, end generation).
+    - Removed the "Load Input-File" item --> All data is now handled exclusively over simulation files.
+    - Re-factored the DE parameter configurator
+    - Re-named couple of menu items and window names
+    - Removed Log in fitness calculation
+    - Console mode now requires a IBA_SIM file as input
+    - Included file type "IBA_SIM" in console mode
+    - typing "java -jar IBA.jar help" prints instruction of usage to console
+    - DE fit results (fit parameters) are not any longer scaled down to 0...1, neither it is done for fitness value
+    - DE status text shows now at the bottom if (and which) any parameter is clipping
+    - Internal code review and minor fixes
+
+2022_02_14 - V7.2
+
+    - Fixed error in normalization of elemental ratios
+    - Fixed export of data into parameter file and batch-report file
+    - Fixed error in scaling of calibration factor during binning
+    - Calibration factor in status window now independent on binning
+    - increased precession of atomic ratios to 4 in status window
+    - Change clipping detection mechanism to start warning already when 90% of para-interval is reached
+    - Polished DE status display
+
+2022_02_18 - V7.3
+
+    - Implemented normalization routine for all individuals
