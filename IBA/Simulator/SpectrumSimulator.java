@@ -32,7 +32,7 @@ public class SpectrumSimulator {
     double     S[][] ;
     double     EMax, EMin, dE;
 
-    private final double E_cutoff  = 50.0 ; //eV  //TODO: Implement into calculationSetup
+    private final double E_cutoff  = 50.0 ; //eV   //TODO: Implement into calculationSetup
     private final int    NUM_STEPS = 50    ;       //TODO: Implement into calculationSetup
 
     //--------------------- Constructor ------------------------------------------------------------------------------//

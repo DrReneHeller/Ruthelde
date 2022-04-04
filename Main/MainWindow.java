@@ -1248,7 +1248,7 @@ public class MainWindow extends JFrame implements Observer{
 
     private void initComponents() {
 
-        this.setTitle("IBA Tools V7.3 - 2022_02_18 (C) R. Heller");
+        this.setTitle("Ruthelde V7.3 - 2022_02_18 (C) R. Heller");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
         pack();
