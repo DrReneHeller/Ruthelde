@@ -93,8 +93,6 @@ public class MainWindow extends JFrame implements Observer{
     private String                 lastFolder             ;
     private String                 currentFileName        ;
 
-    private int dummy; //TestCommit
-
 
     //------------ Constructor ---------------------------------------------------------------------------------------//
 
