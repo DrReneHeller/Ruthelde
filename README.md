@@ -14,9 +14,9 @@
 
 # How to cite
 
-R. Heller, N. Klingner, N. Claessens, J. Meersschaut, RSI ... (2022)
+R. Heller, N. Klingner, N. Claessens,  C. Merckling, J. Meersschaut, [TO BE ADDED] (2022)
 
-DOI: xxxxx-xxx
+DOI: [TO BE ADDED]
 
 
 # Contact
