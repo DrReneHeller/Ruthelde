@@ -10,7 +10,18 @@ public class Population {
     public Population(SpectrumSimulator spectrumSimulator, int size){
 
         individualList = new LinkedList<>();
-        for (int i = 0; i< size; i++){ individualList.add(new Individual(spectrumSimulator)); }
+
+        for (int i = 0; i < size; i++){
+            if (i < 3*size/4) {
+                individualList.add(new Individual(spectrumSimulator.getDeepCopy(), 0.01d));
+            } else{
+                individualList.add(new Individual(spectrumSimulator.getDeepCopy(), 1.0d));
+            }
+        }
+
+        for (Individual individual : individualList){
+            individual.simulate();
+        }
     }
 
     public LinkedList<Individual> getIndividualList(){

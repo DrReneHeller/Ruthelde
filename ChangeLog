@@ -65,3 +65,11 @@
 2022_02_18 - V7.3
 
     - Implemented normalization routine for all individuals
+
+2022_02_14 - V7.4
+
+    - (Re)implemented proper start conditions at the beginning of fit routine
+
+2022_05_23 - V7.5
+
+    - Implemented multi-thread operation in DE simulation (number of threads = number of available cores)

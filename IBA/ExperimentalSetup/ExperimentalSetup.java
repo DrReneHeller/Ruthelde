@@ -130,4 +130,21 @@ public class ExperimentalSetup implements Serializable {
         return charge;
     }
 
+    public ExperimentalSetup getDeepCopy(){
+
+        ExperimentalSetup result = new ExperimentalSetup();
+
+        result.setE0(this.E0);
+        result.setDeltaE0(this.deltaE0);
+        result.setAlpha(this.alpha);
+        result.setTheta(this.theta);
+        result.setCharge(this.charge);
+        result.setMinCharge(this.minCharge);
+        result.setMaxCharge(this.maxCharge);
+        result.setProjectile(new Projectile(this.projectile.getZ(), this.projectile.getM(), this.projectile.getE()));
+
+        return result;
+
+    }
+
 }

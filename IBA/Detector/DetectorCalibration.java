@@ -95,11 +95,18 @@ public class DetectorCalibration implements Serializable {
 
     public double getOffsetMax() { return offset_max; }
 
-    public void randomize(){
+    public void randomize(double strength){
 
         Random rand = new Random();
-        factor = factor_min + rand.nextDouble() * (factor_max - factor_min);
-        offset = offset_min + rand.nextDouble() * (offset_max - offset_min);
+        //factor = factor_min + rand.nextDouble() * (factor_max - factor_min);
+        factor = factor * (1.0d - strength/2.0d + rand.nextDouble()*strength);
+        if (factor > factor_max) factor = factor_max;
+        if (factor < factor_min) factor = factor_min;
+
+        //offset = offset_min + rand.nextDouble() * (offset_max - offset_min);
+        offset = offset * (1.0d - strength/2.0d + rand.nextDouble()*strength);
+        if (offset > offset_max) offset = offset_max;
+        if (offset < offset_min) offset = offset_min;
     }
 
     public DetectorCalibration getDeepCopy(){

@@ -20,20 +20,33 @@ public class Individual {
     private SimulationData simulationData;
     private final SpectrumSimulator spectrumSimulator;
 
-    public Individual(SpectrumSimulator spectrumSimulator){
+    public Individual(SpectrumSimulator spectrumSimulator, double strength){
 
         this.spectrumSimulator = spectrumSimulator;
 
         Random rand = new Random();
 
         this.target = spectrumSimulator.getTarget().getDeepCopy();
-        this.target.randomize();
+        this.target.randomize(strength);
 
         this.detectorCalibration = spectrumSimulator.getDetectorCalibration().getDeepCopy();
-        this.detectorCalibration.randomize();
+        this.detectorCalibration.randomize(strength);
 
-        this.charge     = spectrumSimulator.getExperimentalSetup().getMinCharge() + rand.nextDouble() * (spectrumSimulator.getExperimentalSetup().getMaxCharge() - spectrumSimulator.getExperimentalSetup().getMinCharge());
-        this.resolution = spectrumSimulator.getDetectorSetup().getMinRes() + rand.nextDouble() * (spectrumSimulator.getDetectorSetup().getMaxRes() - spectrumSimulator.getDetectorSetup().getMinRes());
+        //this.charge = spectrumSimulator.getExperimentalSetup().getMinCharge() + rand.nextDouble() * (spectrumSimulator.getExperimentalSetup().getMaxCharge() - spectrumSimulator.getExperimentalSetup().getMinCharge());
+        double charge_min = spectrumSimulator.getExperimentalSetup().getMinCharge();
+        double charge_max = spectrumSimulator.getExperimentalSetup().getMaxCharge();
+        double q = spectrumSimulator.getCharge() * (1.0d - strength/2.0d + rand.nextDouble()*strength);
+        if (q > charge_max) q = charge_max;
+        if (q < charge_min) q = charge_min;
+        this.charge = q;
+
+        //this.resolution = spectrumSimulator.getDetectorSetup().getMinRes() + rand.nextDouble() * (spectrumSimulator.getDetectorSetup().getMaxRes() - spectrumSimulator.getDetectorSetup().getMinRes());
+        double res_min = spectrumSimulator.getDetectorSetup().getMinRes();
+        double res_max = spectrumSimulator.getDetectorSetup().getMaxRes();
+        double res = spectrumSimulator.getDetectorSetup().getResolution() * (1.0d - strength/2.0d + rand.nextDouble()*strength);
+        if (res > res_max) res = res_max;
+        if (res < res_min) res = res_min;
+        this.resolution = res;
     }
 
     public SimulationData simulate(){
@@ -46,7 +59,6 @@ public class Individual {
         spectrumSimulator.setCharge(charge);
         spectrumSimulator.getDetectorSetup().setResolution(resolution);
 
-        //SimulationData simulationData = spectrumSimulator.simulate();
         simulationData = spectrumSimulator.simulate();
         fitness = simulationData.getFitness();
 
@@ -203,7 +215,7 @@ public class Individual {
 
     public Individual getDeepCopy(){
 
-        Individual result = new Individual(spectrumSimulator);
+        Individual result = new Individual(spectrumSimulator, 1.0d);
 
         result.setTarget(target.getDeepCopy());
         result.setCharge(charge);

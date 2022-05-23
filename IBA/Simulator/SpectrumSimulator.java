@@ -628,5 +628,24 @@ public class SpectrumSimulator {
         return sigma2;
     }
 
+    public SpectrumSimulator getDeepCopy(){
+
+        ExperimentalSetup experimentalSetup = this.experimentalSetup.getDeepCopy();
+        DetectorSetup detectorSetup = this.detectorSetup.getDeepCopy();
+        Target target = this.target.getDeepCopy();
+        Target foil = this.foil.getDeepCopy();
+        CalculationSetup calculationSetup = this.calculationSetup.getDeepCopy();
+
+        SpectrumSimulator spSim = new SpectrumSimulator(experimentalSetup, detectorSetup, target, foil, calculationSetup);
+        double[] exp = new double[this.experimentalSpectrum.length];
+        System.arraycopy(this.experimentalSpectrum, 0, exp, 0, this.experimentalSpectrum.length);
+        spSim.setStartChannel(this.startChannel);
+        spSim.setStopChannel(this.stopChannel);
+        spSim.setExperimentalSpectrum(exp);
+
+        return spSim;
+
+    }
+
 }
 

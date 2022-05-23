@@ -1098,21 +1098,6 @@ public class MainWindow extends JFrame implements Observer{
 
         GAEngine gaEngine = new GAEngine(spectrumSimulator, deParameter, calculationSetup);
 
-        Target target = targetModel.getTarget();
-        double charge = experimentalSetup.getCharge();
-        double calFactor = detectorSetup.getCalibration().getFactor();
-        double calOffset = detectorSetup.getCalibration().getOffset();
-        double resolution = detectorSetup.getResolution();
-
-        Individual individual = new Individual(spectrumSimulator);
-        individual.setTarget(target);
-        individual.setCharge(charge);
-        individual.setCalibrationFactor(calFactor);
-        individual.setCalibrationOffset(calOffset);
-        individual.setResolution(resolution);
-
-        gaEngine.inject(individual);
-
         gaEngineWorker = new GAEngineWorker(gaEngine, spectraPlotWindow, fitnessPlotWindow, parameterPlotWindow, eaStatusWindow.ta_info);
         gaEngineWorker.addPropertyChangeListener(evt -> {
             if ("progress".equals(evt.getPropertyName())) {
@@ -1248,7 +1233,7 @@ public class MainWindow extends JFrame implements Observer{
 
     private void initComponents() {
 
-        this.setTitle("Ruthelde V7.3 - 2022_02_18 (C) R. Heller");
+        this.setTitle("Ruthelde V7.5 - 2022_05_23 (C) R. Heller");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
         pack();

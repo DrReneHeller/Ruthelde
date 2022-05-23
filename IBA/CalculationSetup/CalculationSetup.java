@@ -119,4 +119,22 @@ public class CalculationSetup {
     public ChargeFractionMode getChargeFractionMode() {
         return chargeFractionMode;
     }
+
+    public CalculationSetup getDeepCopy(){
+
+        CalculationSetup result = new CalculationSetup();
+
+        result.setStoppingPowerCalculationMode(this.stoppingPowerCalculationMode);
+        result.setCompoundCalculationMode(this.compoundCalculationMode);
+        result.setScreeningMode(this.screeningMode);
+        result.setStragglingMode(this.stragglingMode);
+        result.setChargeFractionMode(this.chargeFractionMode);
+        result.setUseLookUpTable(this.useLookUpTable);
+        result.setSimulateIsotopes(this.simulateIsotopes);
+        result.setShowIsotopes(this.showIsotopes);
+        result.setShowLayers(this.showLayers);
+        result.setShowElements(this.showElements);
+
+        return result;
+    }
 }

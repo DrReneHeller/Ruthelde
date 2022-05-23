@@ -8,15 +8,17 @@ import IBA.Simulator.SimulationResultPlotter;
 import IBA.Simulator.SpectrumSimulator;
 import Target.*;
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.*;
 
 import GA.Input.*;
 
 public class GAEngine {
 
     private Population population;
-    private Individual injectedSolution;
     private final DEParameter deParameter;
     private final SpectrumSimulator spectrumSimulator;
     private final SimulationResultPlotter simulationResultPlotter;
@@ -24,7 +26,7 @@ public class GAEngine {
     private final ParameterPlotter parameterPlotter;
     private double bestFitness, averageFitness, averageTime;
     private long lastMillis, totalTime;
-    private int generationCounter, fittestIndex;
+    private int generationCounter, fittestIndex, processors;
     private double[] originalSpectrum;
     private boolean stop;
 
@@ -40,6 +42,9 @@ public class GAEngine {
 
     public void initialize(){
 
+        processors = Runtime.getRuntime().availableProcessors();
+        System.out.println("Available processors: " + processors);
+
         int length = spectrumSimulator.experimentalSpectrum.length;
         originalSpectrum = new double[length];
         System.arraycopy(spectrumSimulator.experimentalSpectrum,0, originalSpectrum,0,length);
@@ -47,10 +52,6 @@ public class GAEngine {
         if (deParameter.numBins > 1) reBin(deParameter.numBins);
 
         population = new Population(spectrumSimulator, deParameter.populationSize);
-
-        //TODO: Re-Introduce injection after benchmarking is finished
-        //population.getIndividualList().removeLast();
-        //population.getIndividualList().add(injectedSolution.getDeepCopy());
 
         fitnessPlotter.clear();
         parameterPlotter.clear();
@@ -81,14 +82,6 @@ public class GAEngine {
         stop = false;
     }
 
-    public void inject(Individual individual){
-
-        injectedSolution = individual.getDeepCopy();
-        //injectedSolution.setCalibrationFactor(injectedSolution.getCalibrationFactor() * deParameter.numBins);
-        injectedSolution.simulate();
-
-    }
-
     public boolean evolve(PlotWindow spectraPlotWindow, PlotWindow fitnessPlotWindow, PlotWindow parameterPlotWindow, JTextArea infoBox){
 
         boolean plotRefresh = false;
@@ -99,7 +92,6 @@ public class GAEngine {
         totalTime += currentMillis - lastMillis;
         lastMillis = currentMillis;
 
-
         System.out.print("  Implementing transitions ... ");
 
         double simTime = 0.0f           ;
@@ -107,9 +99,10 @@ public class GAEngine {
         double F       = deParameter.F  ;
         double CR      = deParameter.CR ;
 
+        LinkedList<Individual> children = new LinkedList<>();
+
         for (Individual parent : population.getIndividualList()) {
 
-            double parentFitness = parent.getFitness();
             int size = population.getIndividualList().size();
 
             int r1 = index;
@@ -150,11 +143,10 @@ public class GAEngine {
 
             child.setGenes(childGenes);
 
+            //Normalize child
             int layerIndex = 0;
             Random rand = new Random();
-
-            //Normalize child
-            for (Layer childLayer : child.getTarget().getLayerList()){
+            for (Layer childLayer : child.getTarget().getLayerList()) {
 
                 Layer parentLayer = parent.getTarget().getLayerList().get(layerIndex);
                 int elementIndex = 0;
@@ -165,7 +157,7 @@ public class GAEngine {
                 double[] c = new double[numElements];
 
                 //Fill ratios
-                for (Element childElement : childLayer.getElementList()){
+                for (Element childElement : childLayer.getElementList()) {
 
                     Element parentElement = parentLayer.getElementList().get(elementIndex);
                     s[elementIndex] = parentElement.getRatio();
@@ -174,9 +166,11 @@ public class GAEngine {
                 }
 
                 //Shuffle order
-                int[] order = new int[numElements-1];
+                int[] order = new int[numElements - 1];
 
-                for (int i=0; i<numElements-1; i++){ order[i] = i; }
+                for (int i = 0; i < numElements - 1; i++) {
+                    order[i] = i;
+                }
 
                 for (int i = order.length - 1; i > 0; i--) {
 
@@ -187,20 +181,22 @@ public class GAEngine {
                 }
 
                 //Do normalization
-                for (int i : order){
+                for (int i : order) {
 
-                    double diff = c[i] -s[i];
+                    double diff = c[i] - s[i];
 
-                    while(Math.abs(diff) > 0){
+                    while (Math.abs(diff) > 0) {
 
-                        int j=i;
+                        int j = i;
 
-                        while (i==j) {j= rand.nextInt(numElements);}
+                        while (i == j) {
+                            j = rand.nextInt(numElements);
+                        }
 
-                        if ((s[j] - diff) < 0){
+                        if ((s[j] - diff) < 0) {
                             diff = -s[j];
-                            s[j]=0;
-                            c[j]=0;
+                            s[j] = 0;
+                            c[j] = 0;
 
                         } else {
                             s[j] = s[j] - diff;
@@ -220,12 +216,29 @@ public class GAEngine {
                 layerIndex++;
             }
 
-            simTime += child.simulate().getSimulationTime();
+            //Add child to list for later simulation
+            children.add(child);
+
+            index++;
+        }
+
+        // Do all simulation work
+        ExecutorService es = Executors.newFixedThreadPool(processors);
+        List<Callable<Object>> simList = new ArrayList<>();
+        for (Individual child : children) { simList.add(Executors.callable(new SimulationTask(child))); }
+        try { es.invokeAll(simList); } catch (InterruptedException e) { e.printStackTrace(); }
+
+        //Replace parents if necessary
+        index = 0;
+        for (Individual child : children) {
+
+            simTime += child.getSimulationData().getSimulationTime();
             double childFitness = child.getFitness();
+            double parentFitness = population.getIndividualList().get(index).getFitness();
 
             if (childFitness >= parentFitness) {
 
-                parent.replace(child);
+                population.getIndividualList().get(index).replace(child);
 
                 if (childFitness > bestFitness) {
                     bestFitness  = childFitness;
@@ -249,7 +262,7 @@ public class GAEngine {
             for (int i=0; i< numRep; i++) {
                 int ii = (int) (Math.random() * (population.getIndividualList().size()));
                 if (ii != fittestIndex) {
-                    population.getIndividualList().set(ii, new Individual(spectrumSimulator));
+                    population.getIndividualList().set(ii, new Individual(spectrumSimulator.getDeepCopy(), 1.0d));
                 }
             }
         }

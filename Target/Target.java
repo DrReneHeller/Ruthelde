@@ -120,7 +120,7 @@ public class Target implements Serializable{
         return result;
     }
 
-    public void randomize(){
+    public void randomize(double strength){
 
         Random rand = new Random();
 
@@ -128,7 +128,10 @@ public class Target implements Serializable{
 
             double minAD = layer.getMinAD();
             double maxAD = layer.getMaxAD();
-            double AD = rand.nextDouble()*(maxAD - minAD) + minAD;
+            //double AD = rand.nextDouble()*(maxAD - minAD) + minAD;
+            double AD = layer.getArealDensity() * (1.0d - strength/2.0d + rand.nextDouble()*strength);
+            if (AD > maxAD) AD = maxAD;
+            if (AD < minAD) AD = minAD;
             layer.setArealDensity(AD);
 
             int elementIndex = 0;
@@ -136,7 +139,10 @@ public class Target implements Serializable{
 
                 double minRatio = element.getMin_ratio();
                 double maxRatio = element.getMax_ratio();
-                double ratio = minRatio + rand.nextDouble()*(maxRatio-minRatio);
+                //double ratio = minRatio + rand.nextDouble()*(maxRatio-minRatio);
+                double ratio = element.getRatio() * (1.0d - strength/2.0d + rand.nextDouble()*strength);
+                if (ratio > maxRatio) ratio = maxRatio;
+                if (ratio < minRatio) ratio = minRatio;
                 layer.setElementRatio(elementIndex, ratio);
                 elementIndex++;
             }

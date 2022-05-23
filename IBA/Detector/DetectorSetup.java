@@ -32,6 +32,10 @@ public class DetectorSetup implements Serializable {
         this.calibration.setFactor(a);
     }
 
+    public void setCalibration(DetectorCalibration detectorCalibration){
+        this.calibration = detectorCalibration;
+    }
+
     public DetectorCalibration getCalibration() {
         return this.calibration;
     }
@@ -69,6 +73,20 @@ public class DetectorSetup implements Serializable {
 
     public double getSolidAngle() {
         return solidAngle;
+    }
+
+    public DetectorSetup getDeepCopy(){
+
+        DetectorSetup result = new DetectorSetup();
+
+        result.setSolidAngle(this.solidAngle);
+        result.setResolution(this.resolution);
+        result.setMinRes(this.minRes);
+        result.setMaxRes(this.maxRes);
+        result.setCalibration(this.calibration.getDeepCopy());
+
+        return result;
+
     }
 
 }
