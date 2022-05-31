@@ -70,6 +70,7 @@
 
     - (Re)implemented proper start conditions at the beginning of fit routine
 
-2022_05_23 - V7.5
+2022_05_24 - V7.5
 
     - Implemented multi-thread operation in DE simulation (number of threads = number of available cores)
+    - Adopted setting of isotope calculation in multi-thread operation

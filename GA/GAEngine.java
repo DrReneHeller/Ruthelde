@@ -313,6 +313,10 @@ public class GAEngine {
             spectrumSimulator.getCalculationSetup().setSimulateIsotopes(true);
         }
 
+        for (Individual individual : population.getIndividualList()){
+            individual.setIsotopeCalculation(spectrumSimulator.getCalculationSetup().isSimulateIsotopes());
+        }
+
         //check if goal reached
         if (deParameter.endTime       > 0 && totalTime  / ms > deParameter.endTime        ) stop=true;
         if (deParameter.endFitness    > 0 && bestFitness          > deParameter.endFitness) stop=true;

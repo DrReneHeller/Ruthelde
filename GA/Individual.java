@@ -49,6 +49,11 @@ public class Individual {
         this.resolution = res;
     }
 
+    public void setIsotopeCalculation(boolean isotopeCalculation) {
+
+        spectrumSimulator.getCalculationSetup().setSimulateIsotopes(isotopeCalculation);
+    }
+
     public SimulationData simulate(){
 
         spectrumSimulator.setTarget(target);
