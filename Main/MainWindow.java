@@ -1199,6 +1199,7 @@ public class MainWindow extends JFrame implements Observer{
         }
 
         gaRunning = false;
+        updateSimulation();
     }
 
     private void copyBestCandidate(){
