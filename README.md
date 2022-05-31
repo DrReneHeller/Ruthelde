@@ -3,6 +3,10 @@
 - Software package for simulation and automated fitting of IBA spectra
 - Fitting based on Differential Evolution (DE) algorithm
 
+- Runs on all platforms, just double-click on "Ruthelde.jar"
+- Alternatively start from console by typing "java -jar Ruthelde.jar"
+- See ChangeLog.txt for recent changes
+
 ![Main](/pics/Ruthelde_Main.png?raw=true "Optional Title")
 ![Spectrum](/pics/Ruthelde_Spectrum.png?raw=true "Optional Title")
 ![Target](/pics/Ruthelde_Target.png?raw=true "Optional Title")
