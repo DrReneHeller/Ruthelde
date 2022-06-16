@@ -75,3 +75,9 @@
     - Implemented multi-thread operation in DE simulation (number of threads = number of available cores)
     - Adopted setting of isotope calculation in multi-thread operation
     - Reset binning after termination of DE and re-simulate spectrum in full length
+
+
+2022_06_16 - V7.6
+
+    - Implemented Uncertainty Calculation
+    - Fixed memory overrun in multi-thread operation

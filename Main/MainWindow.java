@@ -4,6 +4,8 @@ import DataFileReader.*;
 import Forms.*;
 import GA.*;
 import GA.Input.*;
+import GA.Uncertainty.UncertaintyDataEntry;
+import GA.Uncertainty.UncertaintyEngine;
 import Helper.*;
 import Helper.Plot.*;
 import IBA.CalculationSetup.*;
@@ -87,6 +89,7 @@ public class MainWindow extends JFrame implements Observer{
     private boolean                gaRunning              ;
     private GABatch                gaBatch                ;
     private DEInputCreator         deInputCreator         ;
+    private UncertaintyEngine      uncertaintyEngine      ;
 
     private boolean                blockEvents            ;
     private boolean                console                ;
@@ -124,6 +127,7 @@ public class MainWindow extends JFrame implements Observer{
         foilModel.addObserver(this)                                                  ;
 
         spectrumSimulator.setTarget(targetModel.getTarget()); //Just to have an initial plot drawn
+        uncertaintyEngine = new UncertaintyEngine();
 
         if (args.length >= 3) {
 
@@ -1096,7 +1100,13 @@ public class MainWindow extends JFrame implements Observer{
         lblStatus.setText("---");
         if (gaBatch.running) lblStatus.setText("EA-Batch " + (gaBatch.counter+1) + " of " + gaBatch.length);
 
-        GAEngine gaEngine = new GAEngine(spectrumSimulator, deParameter, calculationSetup);
+        GAEngine gaEngine;
+
+        if (uncertaintyEngine.running) {
+            gaEngine = new GAEngine(uncertaintyEngine.getSpectrumSimulator(), deParameter, calculationSetup);
+        } else {
+          gaEngine = new GAEngine(spectrumSimulator, deParameter, calculationSetup);
+        }
 
         gaEngineWorker = new GAEngineWorker(gaEngine, spectraPlotWindow, fitnessPlotWindow, parameterPlotWindow, eaStatusWindow.ta_info);
         gaEngineWorker.addPropertyChangeListener(evt -> {
@@ -1147,6 +1157,9 @@ public class MainWindow extends JFrame implements Observer{
                             System.exit(0);
                         }
                     }
+                } else if(uncertaintyEngine.running){
+
+                    doGASimulation();
                 }
             }
         });
@@ -1188,18 +1201,32 @@ public class MainWindow extends JFrame implements Observer{
         }
     }
 
+    private void doUncertaintyGASimulation(){
+
+        spectraPlotWindow.setTitle("Spectra - Artificial");
+        uncertaintyEngine.initialize(spectrumSimulator);
+        uncertaintyEngine.running = true;
+        doGASimulation();
+    }
+
     private void stopGASimulation(){
 
         if (gaRunning) {
 
             gaEngineWorker.stop();
-            while (!gaEngineWorker.isFinished()) try {Thread.sleep(10);} catch (Exception e) {}
-            copyBestCandidate();
+            while (!gaEngineWorker.isFinished()) try {Thread.sleep(100);} catch (Exception e) {}
+            if (!uncertaintyEngine.running) {
+                copyBestCandidate();
+                updateSimulation();
+            } else {
+                uncertaintyEngine.updateOutput(gaEngineWorker.getGaEngine().getBest(), deParameter.numBins);
+                uncertaintyEngine.prepareNextSimulation(deParameter.numBins);
+            }
             gaEngineWorker.stop();
         }
 
         gaRunning = false;
-        updateSimulation();
+
     }
 
     private void copyBestCandidate(){
@@ -1234,7 +1261,7 @@ public class MainWindow extends JFrame implements Observer{
 
     private void initComponents() {
 
-        this.setTitle("Ruthelde V7.5 - 2022_05_23 (C) R. Heller");
+        this.setTitle("Ruthelde V7.6 - 2022_06_16 (C) R. Heller");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
         pack();
@@ -1850,6 +1877,25 @@ public class MainWindow extends JFrame implements Observer{
             parameterPlotWindow.setVisible(true);
         });
         gaMenu.add(itemShowParameters);
+
+        JMenu uncertaintyMenu = new JMenu("Uncertainty calculation");
+
+        JMenuItem itemShowUncertaintySettings = new JMenuItem("Settings");
+        itemShowUncertaintySettings.addActionListener(e -> uncertaintyEngine.showInputWindow());
+        JMenuItem itemStartUncertaintyCalculation = new JMenuItem("Start Calculation");
+        itemStartUncertaintyCalculation.addActionListener(e -> doUncertaintyGASimulation());
+        JMenuItem itemStopUncertaintyCalculation = new JMenuItem("Stop Calculation");
+        itemStopUncertaintyCalculation.addActionListener(e -> stopGASimulation());
+        JMenuItem itemShowUncertaintyPlotWindow = new JMenuItem("Show Output Window");
+        itemShowUncertaintyPlotWindow.addActionListener(e -> uncertaintyEngine.showPlotWindow());
+
+        uncertaintyMenu.add(itemShowUncertaintySettings);
+        uncertaintyMenu.add(itemStartUncertaintyCalculation);
+        uncertaintyMenu.add(itemStopUncertaintyCalculation);
+        uncertaintyMenu.add(itemShowUncertaintyPlotWindow);
+
+        gaMenu.add(new JSeparator());
+        gaMenu.add(uncertaintyMenu);
 
         jmb.add(gaMenu);
 

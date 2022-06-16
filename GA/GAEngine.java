@@ -222,11 +222,15 @@ public class GAEngine {
             index++;
         }
 
+
         // Do all simulation work
         ExecutorService es = Executors.newFixedThreadPool(processors);
         List<Callable<Object>> simList = new ArrayList<>();
         for (Individual child : children) { simList.add(Executors.callable(new SimulationTask(child))); }
-        try { es.invokeAll(simList); } catch (InterruptedException e) { e.printStackTrace(); }
+        try { es.invokeAll(simList, 20, TimeUnit.SECONDS); } catch (InterruptedException e) { e.printStackTrace(); }
+        es.shutdownNow();
+        es = null;
+        simList = null;
 
         //Replace parents if necessary
         index = 0;
