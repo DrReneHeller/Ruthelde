@@ -70,32 +70,39 @@ public class UncertaintyOutputWindow extends JFrame{
             for (Element ignored : layer.getElementList()){ numPlots++; }
         }
 
-        numPlots += 4;
+        //numPlots += 4;
+        numPlots += 2;
 
         int index = 0;
         PlotSeries ps;
         float h;
         double[] x = new double[size];
         double[] y;
-        double mean, std;
+        double mean, std, relErr;
+        String xAxisName = "";
 
         for (UncertaintyDataEntry entry : data){
 
             switch (selection){
                 case 0:
                     x[index] = entry.q_set;
+                    xAxisName = "Charge (µC)";
                     break;
                 case 1:
                     x[index] = entry.E0;
+                    xAxisName = "E0 (keV)";
                     break;
                 case 2:
                     x[index] = entry.res_set;
+                    xAxisName = "dE (keV)";
                     break;
                 case 3:
                     x[index] = entry.alpha;
+                    xAxisName = "alpha (°)";
                     break;
                 case 4:
                     x[index] = entry.theta;
+                    xAxisName = "Theta (°)";
                     break;
                 default:
                     break;
@@ -125,7 +132,7 @@ public class UncertaintyOutputWindow extends JFrame{
 
             mean /= size;
 
-            String layerName = "Layer " + (layerIndex+1) + "AD";
+            String layerName = "Layer " + (layerIndex+1) + " AD";
             ps = new PlotSeries(layerName, x, y);
             ps.seriesProperties.showLine = true;
             ps.seriesProperties.stroke = 3;
@@ -145,9 +152,11 @@ public class UncertaintyOutputWindow extends JFrame{
                 std += Math.pow(mean - entry.target.getLayerList().get(layerIndex).getArealDensity(),2);
             }
 
-            std = Math.sqrt(std/size);
+            std = Math.sqrt(std/(size-1));
+            relErr = std / mean * 100.0d;
 
-            sb.append(String.format("%.2f" , std).replace(",",".") + "]\n\r");
+            sb.append(String.format("%.2f" , std).replace(",",".") + "]");
+            sb.append(" (" + String.format("%.2f" , relErr).replace(",",".") + "%) \n\r");
 
             sb.append("\n\r");
 
@@ -192,9 +201,11 @@ public class UncertaintyOutputWindow extends JFrame{
                     std += Math.pow(mean - entry.target.getLayerList().get(layerIndex).getElementList().get(elementIndex).getRatio(),2);
                 }
 
-                std = Math.sqrt(std/size);
+                std = Math.sqrt(std/(size-1));
+                relErr = std / mean * 100.0d;
 
-                sb.append(String.format("%.2f" , std).replace(",",".") + "]\n\r");
+                sb.append(String.format("%.2f" , std).replace(",",".") + "]");
+                sb.append(" (" + String.format("%.2f" , relErr).replace(",",".") + "%) \n\r");
 
                 elementIndex++;
             }
@@ -204,6 +215,9 @@ public class UncertaintyOutputWindow extends JFrame{
             layerIndex++;
         }
 
+        String name;
+
+        /*
         index = 0;
         y = new double[size];
 
@@ -214,7 +228,7 @@ public class UncertaintyOutputWindow extends JFrame{
             index++;
         }
 
-        String name = "Charge";
+        name = "Charge";
         ps = new PlotSeries(name, x, y);
         ps.seriesProperties.showLine = true;
         ps.seriesProperties.stroke = 3;
@@ -245,6 +259,7 @@ public class UncertaintyOutputWindow extends JFrame{
         ps.setColor(new Color(Color.HSBtoRGB(h, 1, 1)));
         plotSeries.add(ps);
         plotIndex++;
+         */
 
         index = 0;
         y = new double[size];
@@ -262,11 +277,13 @@ public class UncertaintyOutputWindow extends JFrame{
 
         mean /= size;
         for (UncertaintyDataEntry entry : data){ std += Math.pow(mean - entry.calFactor,2); }
-        std = Math.sqrt(std/size);
+        std = Math.sqrt(std/(size-1));
+        relErr = std / mean * 100.0d;
 
         sb.append("\n\r");
         sb.append("  Cal.-Factor: [mean = " + String.format("%.2f" , mean).replace(",","."));
-        sb.append(", std = " + String.format("%.2f" , std).replace(",",".") + "]\n\r");
+        sb.append(", std = " + String.format("%.2f" , std).replace(",",".") + "]");
+        sb.append(" (" + String.format("%.2f" , relErr).replace(",",".") + "%) \n\r");
 
         name = "Cal.-factor";
         ps = new PlotSeries(name, x, y);
@@ -294,10 +311,12 @@ public class UncertaintyOutputWindow extends JFrame{
 
         mean /= size;
         for (UncertaintyDataEntry entry : data){ std += Math.pow(mean - entry.calOffset,2); }
-        std = Math.sqrt(std/size);
+        std = Math.sqrt(std/(size-1));
+        relErr = std / mean * 100.0d;
 
         sb.append("  Cal.-Offset: [mean = " + String.format("%.2f" , mean).replace(",","."));
-        sb.append(", std = " + String.format("%.2f" , std).replace(",",".") + "]\n\r");
+        sb.append(", std = " + String.format("%.2f" , std).replace(",",".") + "]");
+        sb.append(" (" + String.format("%.2f" , relErr).replace(",",".") + "%) \n\r");
 
         name = "Cal.-offset";
         ps = new PlotSeries(name, x, y);
@@ -314,7 +333,7 @@ public class UncertaintyOutputWindow extends JFrame{
         ta_output.setText(sb.toString());
 
         dataPlot.setPlotSeries(plotSeries);
-        dataPlot.getPlotProperties().xAxisName = "Input Parameter";
+        dataPlot.getPlotProperties().xAxisName = xAxisName;
         dataPlot.getPlotProperties().yAxisName = "Fit values";
         dataPlot.refresh();
 
@@ -322,11 +341,11 @@ public class UncertaintyOutputWindow extends JFrame{
 
         //Now do statistics within fits/spectra
 
-        if (input.numberOfFits + input.numberOfSpectra > 2 &&
-            data.getLast().fitID == input.numberOfFits-1 &&
-            data.getLast().spectrumID == input.numberOfSpectra-1) {
+        if (input.numberOfFits + input.numberOfSpectra > 2){
+            //data.getLast().fitID == input.numberOfFits-1 &&
+            //data.getLast().spectrumID == input.numberOfSpectra-1) {
 
-            int maxParaID = data.getLast().parameterID;
+            int maxParaID = data.getLast().parameterID - 1;
             int paraID    = data.getFirst().parameterID;
             LinkedList<PlotSeries> plotSeries2 = new LinkedList<>();
 
@@ -387,14 +406,15 @@ public class UncertaintyOutputWindow extends JFrame{
                         }
                     }
 
-                    std = Math.sqrt(std / (input.numberOfFits * input.numberOfSpectra));
+                    std = Math.sqrt(std / (input.numberOfFits * input.numberOfSpectra - 1));
+                    relErr = std / mean * 100.0d;
 
-                    y[paraID] = std;
+                    y[paraID] = relErr;
 
                     paraID++;
                 }
 
-                name = "Layer " + layerIndex + " AD";
+                name = "Layer " + (layerIndex+1) + " AD";
                 ps = new PlotSeries(name, x, y);
                 ps.seriesProperties.showLine = true;
                 ps.seriesProperties.stroke = 3;
@@ -434,14 +454,15 @@ public class UncertaintyOutputWindow extends JFrame{
                             }
                         }
 
-                        std = Math.sqrt(std / (input.numberOfFits * input.numberOfSpectra));
+                        std = Math.sqrt(std / (input.numberOfFits * input.numberOfSpectra - 1));
+                        relErr = std / mean * 100.0d;
 
-                        y[paraID] = std;
+                        y[paraID] = relErr;
 
                         paraID++;
                     }
 
-                    name = "Layer " + layerIndex + " " + element.getName();
+                    name = "Layer " + (layerIndex+1) + " " + element.getName();
                     ps = new PlotSeries(name, x, y);
                     ps.seriesProperties.showLine = true;
                     ps.seriesProperties.stroke = 3;
@@ -457,6 +478,8 @@ public class UncertaintyOutputWindow extends JFrame{
 
                 layerIndex++;
             }
+
+            /*
 
             y = new double[maxParaID+1];
 
@@ -483,9 +506,10 @@ public class UncertaintyOutputWindow extends JFrame{
                     }
                 }
 
-                std = Math.sqrt(std / (input.numberOfFits * input.numberOfSpectra));
+                std = Math.sqrt(std / (input.numberOfFits * input.numberOfSpectra - 1));
+                relErr = std / mean * 100.0d;
 
-                y[paraID] = std;
+                y[paraID] = relErr;
 
                 paraID++;
             }
@@ -526,9 +550,10 @@ public class UncertaintyOutputWindow extends JFrame{
                     }
                 }
 
-                std = Math.sqrt(std / (input.numberOfFits * input.numberOfSpectra));
+                std = Math.sqrt(std / (input.numberOfFits * input.numberOfSpectra - 1));
+                relErr = std / mean * 100.0d;
 
-                y[paraID] = std;
+                y[paraID] = relErr;
 
                 paraID++;
             }
@@ -543,6 +568,7 @@ public class UncertaintyOutputWindow extends JFrame{
             ps.setColor(new Color(Color.HSBtoRGB(h, 1, 1)));
             plotSeries2.add(ps);
             plotIndex++;
+            */
 
             y = new double[maxParaID+1];
 
@@ -569,9 +595,10 @@ public class UncertaintyOutputWindow extends JFrame{
                     }
                 }
 
-                std = Math.sqrt(std / (input.numberOfFits * input.numberOfSpectra));
+                std = Math.sqrt(std / (input.numberOfFits * input.numberOfSpectra - 1));
+                relErr = std / mean * 100.0d;
 
-                y[paraID] = std;
+                y[paraID] = relErr;
 
                 paraID++;
             }
@@ -612,9 +639,10 @@ public class UncertaintyOutputWindow extends JFrame{
                     }
                 }
 
-                std = Math.sqrt(std / (input.numberOfFits * input.numberOfSpectra));
+                std = Math.sqrt(std / (input.numberOfFits * input.numberOfSpectra - 1));
+                relErr = std / mean * 100.0d;
 
-                y[paraID] = std;
+                y[paraID] = relErr;
 
                 paraID++;
             }
@@ -630,11 +658,10 @@ public class UncertaintyOutputWindow extends JFrame{
             plotSeries2.add(ps);
 
             statsPlot.setPlotSeries(plotSeries2);
-            statsPlot.getPlotProperties().xAxisName = "Input Parameter";
-            statsPlot.getPlotProperties().yAxisName = "Std of fit values";
+            statsPlot.getPlotProperties().xAxisName = xAxisName;
+            statsPlot.getPlotProperties().yAxisName = "rel. Error [std/mean*100]";
             statsPlot.refresh();
         }
-
     }
 
     public void clear(){

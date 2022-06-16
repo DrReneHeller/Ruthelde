@@ -15,6 +15,7 @@ public class UncertaintyEngine {
     private final UncertaintyOutputWindow outputWindow;
     private int fitCounter, spectrumCounter, parameterCounter;
     private Target target;
+    private double charge, dE, E0, alpha, theta;
 
     public UncertaintyEngine() {
 
@@ -57,7 +58,6 @@ public class UncertaintyEngine {
             calcArtificialSpectrum();
         }
 
-        //addDataEntry();
         ss.getTarget().randomize(1.0d);
 
         double min, max, val;
@@ -67,10 +67,10 @@ public class UncertaintyEngine {
         val = min + Math.random() * (max - min);
         ss.getExperimentalSetup().setCharge(val);
 
-        min = ss.getExperimentalSetup().getMinCharge();
-        max = ss.getExperimentalSetup().getMaxCharge();
+        min = ss.getDetectorSetup().getMinRes();
+        max = ss.getDetectorSetup().getMaxRes();
         val = min + Math.random() * (max - min);
-        ss.setCharge(val);
+        ss.getDetectorSetup().setResolution(val);
 
         min = ss.getDetectorCalibration().getFactorMin();
         max = ss.getDetectorCalibration().getFactorMax();
@@ -85,23 +85,23 @@ public class UncertaintyEngine {
 
     private void shuffleSetup(){
 
-        double charge = input.q_min + Math.random() * (input.q_max - input.q_min);
+        charge = input.q_min + Math.random() * (input.q_max - input.q_min);
         ss.getExperimentalSetup().setMinCharge((1.0f - input.q_var/100.f)*charge);
         ss.getExperimentalSetup().setMaxCharge((1.0f + input.q_var/100.f)*charge);
         ss.getExperimentalSetup().setCharge(charge);
 
-        double res = input.dE_min + Math.random() * (input.dE_max - input.dE_min);
-        ss.getDetectorSetup().setMinRes((1.0f - input.dE_var /100.f)*res);
-        ss.getDetectorSetup().setMaxRes((1.0f + input.dE_var /100.f)*res);
-        ss.getDetectorSetup().setResolution(res);
+        dE = input.dE_min + Math.random() * (input.dE_max - input.dE_min);
+        ss.getDetectorSetup().setMinRes((1.0f - input.dE_var /100.f)*dE);
+        ss.getDetectorSetup().setMaxRes((1.0f + input.dE_var /100.f)*dE);
+        ss.getDetectorSetup().setResolution(dE);
 
-        double E0 = input.E0_min + Math.random() * (input.E0_max - input.E0_min);
+        E0 = input.E0_min + Math.random() * (input.E0_max - input.E0_min);
         ss.getExperimentalSetup().setE0(E0);
 
-        double alpha = input.alpha_min + Math.random() * (input.alpha_max - input.alpha_min);
+        alpha = input.alpha_min + Math.random() * (input.alpha_max - input.alpha_min);
         ss.getExperimentalSetup().setAlpha(alpha);
 
-        double theta = input.theta_min + Math.random() * (input.theta_max - input.theta_min);
+        theta = input.theta_min + Math.random() * (input.theta_max - input.theta_min);
         ss.getExperimentalSetup().setTheta(theta);
     }
 
@@ -112,14 +112,7 @@ public class UncertaintyEngine {
     public void updateOutput(Individual individual, int numBins){
 
         UncertaintyDataEntry dataEntry = new UncertaintyDataEntry(parameterCounter, spectrumCounter, fitCounter);
-
-        double q_set   = ss.getCharge()                        ;
-        double res_set = ss.getDetectorSetup().getResolution() ;
-        double alpha   = ss.getExperimentalSetup().getAlpha()  ;
-        double theta   = ss.getExperimentalSetup().getTheta()  ;
-        double E0      = ss.getExperimentalSetup().getE0()     ;
-
-        dataEntry.setInputParameter(q_set, res_set, alpha, theta, E0);
+        dataEntry.setInputParameter(charge, dE, alpha, theta, E0);
 
         dataEntry.target    = individual.getTarget().getDeepCopy()      ;
         dataEntry.calFactor = individual.getCalibrationFactor()/numBins ;
@@ -142,6 +135,12 @@ public class UncertaintyEngine {
     private void calcArtificialSpectrum(){
 
         ss.setTarget(target.getDeepCopy());
+
+        ss.setCharge(charge);
+        ss.getDetectorSetup().setResolution(dE);
+        ss.getExperimentalSetup().setE0(E0);
+        ss.getExperimentalSetup().setAlpha(alpha);
+        ss.getExperimentalSetup().setTheta(theta);
 
         double[] simulatedSpectrum = ss.simulate().getSimulatedSpectrum();
 
