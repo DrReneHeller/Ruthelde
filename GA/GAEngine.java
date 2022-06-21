@@ -129,7 +129,7 @@ public class GAEngine {
 
                 double mutVal = gene_r1 + F * (gene_r2 - gene_r3);
 
-                if (mutVal > gene.max || mutVal < gene.min) mutVal = gene.min + Math.random() * (gene.max - gene.min);
+                if (mutVal >= gene.max || mutVal <= gene.min) mutVal = gene.min + Math.random() * (gene.max - gene.min);
 
                 if (Math.random() < CR) {
                     childGenes.add(new Gene(gene.min, gene.max, mutVal));

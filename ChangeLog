@@ -81,3 +81,8 @@
 
     - Implemented Uncertainty Calculation
     - Fixed memory overrun in multi-thread operation
+
+
+2022_06_21 - V7.6.1
+
+    - Bug fix in uncertainty calculation (start values for E0, alpha, Theta)

@@ -16,6 +16,7 @@ public class UncertaintyEngine {
     private int fitCounter, spectrumCounter, parameterCounter;
     private Target target;
     private double charge, dE, E0, alpha, theta;
+    private double or_charge, or_dE, or_E0, or_alpha, or_theta;
 
     public UncertaintyEngine() {
 
@@ -27,6 +28,12 @@ public class UncertaintyEngine {
 
     public void initialize(SpectrumSimulator ss){
 
+        or_charge = ss.getCharge()                        ;
+        or_dE     = ss.getDetectorSetup().getResolution() ;
+        or_E0     = ss.getExperimentalSetup().getE0()     ;
+        or_alpha  = ss.getExperimentalSetup().getAlpha()  ;
+        or_theta  = ss.getExperimentalSetup().getTheta()  ;
+
         this.ss          = ss.getDeepCopy();
         this.target      = ss.getTarget().getDeepCopy();
         data             = new LinkedList<>();
@@ -36,6 +43,9 @@ public class UncertaintyEngine {
         parameterCounter = 0;
         shuffleSetup();
         calcArtificialSpectrum();
+        ss.getExperimentalSetup().setE0(or_E0);
+        ss.getExperimentalSetup().setAlpha(or_alpha);
+        ss.getExperimentalSetup().setTheta(or_theta);
         outputWindow.clear();
     }
 
@@ -58,8 +68,11 @@ public class UncertaintyEngine {
             calcArtificialSpectrum();
         }
 
+        //Randomize target
         ss.getTarget().randomize(1.0d);
 
+
+        //Randomize exp. parameter
         double min, max, val;
 
         min = ss.getExperimentalSetup().getMinCharge();
@@ -81,6 +94,10 @@ public class UncertaintyEngine {
         max = ss.getDetectorCalibration().getOffsetMax();
         val = min + Math.random() * (max - min);
         ss.getDetectorSetup().setCalibrationOffset(val);
+
+        ss.getExperimentalSetup().setE0(or_E0);
+        ss.getExperimentalSetup().setAlpha(or_alpha);
+        ss.getExperimentalSetup().setTheta(or_theta);
     }
 
     private void shuffleSetup(){
@@ -89,11 +106,13 @@ public class UncertaintyEngine {
         ss.getExperimentalSetup().setMinCharge((1.0f - input.q_var/100.f)*charge);
         ss.getExperimentalSetup().setMaxCharge((1.0f + input.q_var/100.f)*charge);
         ss.getExperimentalSetup().setCharge(charge);
+        //TODO: FIXE_ME
 
         dE = input.dE_min + Math.random() * (input.dE_max - input.dE_min);
         ss.getDetectorSetup().setMinRes((1.0f - input.dE_var /100.f)*dE);
         ss.getDetectorSetup().setMaxRes((1.0f + input.dE_var /100.f)*dE);
         ss.getDetectorSetup().setResolution(dE);
+        //TODO: FIXE_ME
 
         E0 = input.E0_min + Math.random() * (input.E0_max - input.E0_min);
         ss.getExperimentalSetup().setE0(E0);
