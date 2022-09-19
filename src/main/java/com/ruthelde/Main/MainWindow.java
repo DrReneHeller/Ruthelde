@@ -141,12 +141,12 @@ public class MainWindow extends JFrame implements Observer {
         if (args[0].equals("help")) {
             System.out.println("Usage: java -jar IBA.jar {help|run_de|simulate} [...]");
             System.out.println("help ");
-            System.out.println("run_de [input] [fileType] [spectrum_1 ... spectrum_N]  runs differential evolution");
-            System.out.println("    [input]     (absolute) path to IBA simulation file which is used to extract");
-            System.out.println("                input parameters like target model and  experimental constrains from.");
-            System.out.println("    [fileType] specifies the tye of following iba spectra. Allowed values:");
-            System.out.println("               IBC_RBS, IBC_3MV_SINGLE, IBC_3MV_MULTI, IMEC, IBA_SIM");
-            System.out.println("    [spectrum_1 ... spectrum_N] (absolute) file paths to spectra files");
+            System.out.println("run_de   [input] [fileType] [spectrum_1 ... spectrum_N]  runs differential evolution");
+            System.out.println("         [input] (absolute) path to IBA simulation file which is used to extract");
+            System.out.println("                 input parameters like target model and  experimental constrains from.");
+            System.out.println("         [fileType] specifies the tye of following iba spectra. Allowed values:");
+            System.out.println("                    IBC_RBS, IBC_3MV_SINGLE, IBC_3MV_MULTI, IMEC, IBA_SIM");
+            System.out.println("         [spectrum_1 ... spectrum_N] (absolute) file paths to spectra files");
             System.out.println("simulate [input-file] [output-file] Generate data from simulation");
             System.exit(0);
         }
