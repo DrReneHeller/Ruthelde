@@ -102,8 +102,6 @@ public class MainWindow extends JFrame implements Observer {
     private String lastFolder;
     private String currentFileName;
 
-    // Test comment for test commit
-
     //------------ Constructor ---------------------------------------------------------------------------------------//
 
     public MainWindow(String args[]) {
