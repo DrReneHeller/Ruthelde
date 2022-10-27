@@ -18,10 +18,9 @@
 
 # How to cite
 
-R. Heller, N. Klingner, N. Claessens,  C. Merckling, J. Meersschaut, [TO BE ADDED] (2022)
+R. Heller, N. Klingner, N. Claessens, C. Merckling, J. Meersschaut, J. Appl. Phys. 132, 165302 (2022) 
 
-DOI: [TO BE ADDED]
-
+https://doi.org/10.1063/5.0096497
 
 # Contact
 
