@@ -9,12 +9,60 @@ import java.util.LinkedList;
 
 public class DataFileReader {
 
+    public static double[] readASCIIFileOneColumn(File file) {
+
+        double result[] = new double[0];
+        String currentLine;
+        BufferedReader inputBuffer;
+        LinkedList<Double> spectrum = new LinkedList<>();
+
+        try {
+            if (file.exists() && file.isFile() && file.canRead()) {
+                inputBuffer = new BufferedReader(new FileReader(file));
+
+                while ((currentLine = inputBuffer.readLine()) != null) {
+                    spectrum.add(Double.parseDouble(currentLine));
+                }
+
+                result = new double[spectrum.size()];
+                for (int i= 0; i < spectrum.size(); i++) result[i] = spectrum.get(i);
+                inputBuffer.close();
+            }
+        } catch (Exception ex) {}
+
+        return result;
+    }
+
+    public static double[] readASCIIFileTwoColumn(File file) {
+
+        double result[] = new double[0];
+        String currentLine;
+        BufferedReader inputBuffer;
+        LinkedList<Double> spectrum = new LinkedList<>();
+
+        try {
+            if (file.exists() && file.isFile() && file.canRead()) {
+                inputBuffer = new BufferedReader(new FileReader(file));
+
+                while ((currentLine = inputBuffer.readLine()) != null) {
+                    spectrum.add(Double.parseDouble(currentLine.split("\t")[1]));
+                }
+
+                result = new double[spectrum.size()];
+                for (int i= 0; i < spectrum.size(); i++) result[i] = spectrum.get(i);
+                inputBuffer.close();
+            }
+        } catch (Exception ex) {ex.printStackTrace();}
+
+        return result;
+    }
+
     public static double[] readIBCDataFile(File file) {
 
         double result[] = new double[0];
         String currentLine;
         BufferedReader inputBuffer;
-        LinkedList<Integer> spectrum = new LinkedList<Integer>();
+        LinkedList<Integer> spectrum = new LinkedList<>();
         boolean foundStartOfData = false;
 
         try {

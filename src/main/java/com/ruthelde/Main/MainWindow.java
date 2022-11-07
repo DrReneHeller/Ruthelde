@@ -309,6 +309,14 @@ public class MainWindow extends JFrame implements Observer {
 
             switch (fileType) {
 
+                case ONE_COLUMN_ASCII:
+                    experimentalSpectrum = DataFileReader.readASCIIFileOneColumn(spectrumFile);
+                    break;
+
+                case TWO_COLUMN_ASCII:
+                    experimentalSpectrum = DataFileReader.readASCIIFileTwoColumn(spectrumFile);
+                    break;
+
                 case IBC_RBS:
                     experimentalSpectrum = DataFileReader.readIBCDataFile(spectrumFile);
                     break;
@@ -362,9 +370,28 @@ public class MainWindow extends JFrame implements Observer {
                     break;
             }
 
+            int ch_min = Integer.parseInt(tf_ch_min.getText());
+            int ch_max = Integer.parseInt(tf_ch_max.getText());
+
+            int length = experimentalSpectrum.length;
+
+            if (ch_min >= length) {
+                ch_min = 0;
+                tf_ch_min.setText("" + ch_min);
+                spectrumSimulator.setStartChannel(ch_min);
+            }
+
+            if (ch_max >= length) {
+                ch_min = 0;
+                ch_max = length - 1;
+                tf_ch_min.setText("" + ch_min);
+                tf_ch_max.setText("" + ch_max);
+                spectrumSimulator.setStartChannel(ch_min);
+                spectrumSimulator.setStopChannel(ch_max);
+            }
+
             spectrumSimulator.setExperimentalSpectrum(experimentalSpectrum);
             updateSimulation();
-
         }
     }
 
@@ -1617,6 +1644,14 @@ public class MainWindow extends JFrame implements Observer {
         JMenu fileMenu = new JMenu("File");
 
         JMenu jmLoad = new JMenu("Import Spectrum");
+
+        JMenuItem itemLoadASCIISpectrumOne = new JMenuItem("One Column ASCII");
+        itemLoadASCIISpectrumOne.addActionListener(e -> readDataFile(ONE_COLUMN_ASCII, null));
+        jmLoad.add(itemLoadASCIISpectrumOne);
+
+        JMenuItem itemLoadASCIISpectrumTwo = new JMenuItem("Multi Column ASCII");
+        itemLoadASCIISpectrumTwo.addActionListener(e -> readDataFile(TWO_COLUMN_ASCII, null));
+        jmLoad.add(itemLoadASCIISpectrumTwo);
 
         JMenuItem itemLoadOldIBCSpectrum = new JMenuItem("IBC Spectrum (vdG)");
         itemLoadOldIBCSpectrum.addActionListener(e -> readDataFile(IBC_RBS, null));
