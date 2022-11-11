@@ -10,6 +10,8 @@ final public class StoppingCalculator {
     private static final int MAX_ATOMIC_NUMBER = 92;
     private double[][] stoppingCoefficients;
 
+    private double[] correctionFactors;
+
     public StoppingCalculator() {
 
         stoppingCoefficients = new double[94][55];
@@ -27,6 +29,21 @@ final public class StoppingCalculator {
 
         for (int i=0; i<92; i++) {
             System.arraycopy(DataTable.SCOEF, i * 54, stoppingCoefficients[i + 1], 1, 54);
+        }
+
+        correctionFactors = new double[MAX_ATOMIC_NUMBER];
+
+        for (int i=0; i<MAX_ATOMIC_NUMBER; i++) correctionFactors[i] = 1.0d;
+    }
+
+    public void setCorrectionFactors(double[] correctionFactors){
+
+        if (correctionFactors != null && correctionFactors.length == MAX_ATOMIC_NUMBER) {
+
+            for (int i=0; i<MAX_ATOMIC_NUMBER; i++){
+
+                this.correctionFactors[i] = correctionFactors[i];
+            }
         }
     }
 
@@ -66,6 +83,8 @@ final public class StoppingCalculator {
                 result = S;
                 break;
         }
+
+        result = result * correctionFactors[Z2-1];
 
         return result;
     }

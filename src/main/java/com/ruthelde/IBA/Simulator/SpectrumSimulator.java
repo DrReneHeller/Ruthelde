@@ -50,6 +50,8 @@ public class SpectrumSimulator {
         this.calculationSetup   = calculationSetup   ;
 
         stoppingCalculator = new StoppingCalculator();
+        stoppingCalculator.setCorrectionFactors(calculationSetup.getCorrectionFactors());
+
         simulationData     = new SimulationData()    ;
 
         simulationData.setNumberOfChannels(numberOfChannels);

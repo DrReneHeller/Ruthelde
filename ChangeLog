@@ -87,6 +87,10 @@
 
     - Bug fix in uncertainty calculation (start values for E0, alpha, Theta)
 
-2022_06_21 - V7.6.2
+2022_11_07 - V7.6.2
 
     - Added import function for single and multiple column ASCII data files
+
+2022_11_08 - V7.6.3
+
+    - Added section *correctionFactors* into 'calculation setup' allowing manual adjustment of stopping cross sections

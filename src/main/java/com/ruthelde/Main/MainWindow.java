@@ -140,6 +140,8 @@ public class MainWindow extends JFrame implements Observer {
             loadSimulation(args[0]);
 
             FileType fileType = null;
+            if (args[1].equals("ASCII_ONE")) fileType = ONE_COLUMN_ASCII;
+            if (args[1].equals("ASCII_TWO")) fileType = TWO_COLUMN_ASCII;
             if (args[1].equals("IBC_RBS")) fileType = IBC_RBS;
             if (args[1].equals("IBC_3MV_SINGLE")) fileType = IBC_3MV_SINGLE;
             if (args[1].equals("IBC_3MV_MULTI")) fileType = IBC_3MV_MULTI;
@@ -188,7 +190,7 @@ public class MainWindow extends JFrame implements Observer {
                 System.out.println("    input parameters like target model and  experimental constrains from.");
                 System.out.println("");
                 System.out.println("    fileType - specifies the tye of following iba spectra. Allowed values:");
-                System.out.println("    IBC_RBS, IBC_3MV_SINGLE, IBC_3MV_MULTI, IMEC, IBA_SIM");
+                System.out.println("    ASCII_ONE, ASCII_TWO, IBC_RBS, IBC_3MV_SINGLE, IBC_3MV_MULTI, IMEC, IBA_SIM");
                 System.out.println("");
                 System.out.println("    spectrum_1 ... spectrum_N - (absolute) file paths to spectra files");
 
@@ -542,6 +544,7 @@ public class MainWindow extends JFrame implements Observer {
                 calculationSetup.setShowIsotopes(df.calculationSetup.isShowIsotopes());
                 calculationSetup.setShowLayers(df.calculationSetup.isShowLayers());
                 calculationSetup.setSimulateIsotopes(df.calculationSetup.isSimulateIsotopes());
+                calculationSetup.setCorrectionFactors(df.calculationSetup.getCorrectionFactors());
 
                 spectrumSimulator.setCalculationSetup(calculationSetup);
 
@@ -594,7 +597,8 @@ public class MainWindow extends JFrame implements Observer {
             }
 
         } catch (Exception ex) {
-            System.out.println("Error loading simulation file: " + ex.getMessage());
+            System.out.println("Error loading simulation file: ");
+            ex.printStackTrace();
         }
 
 
@@ -1323,7 +1327,7 @@ public class MainWindow extends JFrame implements Observer {
 
     private void initComponents() {
 
-        this.setTitle("Ruthelde V7.6.2 - 2022_11_07 (C) R. Heller");
+        this.setTitle("Ruthelde V7.6.3 - 2022_11_08 (C) R. Heller");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
         pack();

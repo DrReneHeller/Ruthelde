@@ -18,6 +18,8 @@ public class CalculationSetup {
     private StragglingMode          stragglingMode               ;
     private ChargeFractionMode      chargeFractionMode           ;
 
+    private double[]                correctionFactors            ;
+
     public boolean isShowIsotopes() {
         return showIsotopes;
     }
@@ -32,6 +34,7 @@ public class CalculationSetup {
         this.chargeFractionMode           = DEFAULT_CHARGE_FRACTION_MODE     ;
         this.useLookUpTable               = DEFAULT_USE_LOOK_UP_TABLE        ;
         this.simulateIsotopes             = DEFAULT_SIMULATE_ISOTOPES        ;
+        this.correctionFactors            = null                             ;
     }
 
     public void setUseLookUpTable(boolean useLookUpTable) {
@@ -120,6 +123,20 @@ public class CalculationSetup {
         return chargeFractionMode;
     }
 
+    public double[] getCorrectionFactors(){
+        return correctionFactors;
+    }
+
+    public void setCorrectionFactors(double[] correctionFactors) {
+
+        if (correctionFactors != null){
+
+            this.correctionFactors = new double[correctionFactors.length];
+            for (int i=0; i< correctionFactors.length; i++) this.correctionFactors[i] = correctionFactors[i];
+        }
+
+    }
+
     public CalculationSetup getDeepCopy(){
 
         CalculationSetup result = new CalculationSetup();
@@ -134,6 +151,7 @@ public class CalculationSetup {
         result.setShowIsotopes(this.showIsotopes);
         result.setShowLayers(this.showLayers);
         result.setShowElements(this.showElements);
+        result.setCorrectionFactors(this.correctionFactors);
 
         return result;
     }
