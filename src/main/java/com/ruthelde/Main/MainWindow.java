@@ -13,6 +13,7 @@ import com.ruthelde.IBA.CalculationSetup.*;
 import com.ruthelde.IBA.DataFile;
 import com.ruthelde.IBA.Detector.DetectorSetup;
 import com.ruthelde.IBA.ExperimentalSetup.*;
+import com.ruthelde.IBA.IDF_Converter;
 import com.ruthelde.IBA.Simulator.*;
 import com.ruthelde.Stopping.*;
 import com.ruthelde.Target.*;
@@ -401,15 +402,34 @@ public class MainWindow extends JFrame implements Observer {
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
+        String fileFormat = "";
+
         if (file == null) {
 
             final JFileChooser fc;
             if (lastFolder != null) fc = new JFileChooser(lastFolder);
             else fc = new JFileChooser();
+
+            fc.addChoosableFileFilter(new CFileFilter("json", "Ruthelde Simulation File (*.json)"));
+            fc.addChoosableFileFilter(new CFileFilter("xml", "IBA Data Format (*.xml)"));
+            fc.addChoosableFileFilter(new CFileFilter("idf", "IBA Data Format (*.idf)"));
+            fc.addChoosableFileFilter(new CFileFilter("xnra", "SIMNRA file (*.xnra)"));
+            fc.setAcceptAllFileFilterUsed(false);
+
             int returnVal = fc.showSaveDialog(this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
 
+                CFileFilter cf = (CFileFilter) fc.getFileFilter();
+
                 file = fc.getSelectedFile();
+
+                String dir = file.getParentFile().toString();
+                String name = file.getName();
+                if (name.contains(".")) name = name.split("\\.")[0];
+                name = name + "." + cf.getFileExt();
+                file = new File(dir + "/" + name);
+
+                fileFormat = cf.getFileExt();
                 lastFolder = fc.getSelectedFile().getParent();
                 setLastFolder(lastFolder);
             }
@@ -455,18 +475,28 @@ public class MainWindow extends JFrame implements Observer {
             DataFile dataFile = new DataFile(target, experimentalSetup, calculationSetup, detectorSetup, deParameter,
                     spectrumSimulator.experimentalSpectrum, currentFileName, wp);
 
-            try {
-                FileWriter fw = new FileWriter(file);
+            switch (fileFormat) {
 
-                gson.toJson(dataFile, fw);
-                fw.flush();
-                fw.close();
-            } catch (Exception ex) {
-                System.out.println(ex.getMessage());
+                case "json":
+
+                    try {
+                        FileWriter fw = new FileWriter(file);
+                        gson.toJson(dataFile, fw);
+                        fw.flush();
+                        fw.close();
+                    } catch (Exception ex) {
+                        System.out.println(ex.getMessage());
+                    }
+
+                    break;
+
+                case "xml": case "idf": case "xnra":
+
+                    IDF_Converter.write_To_IDF_File(dataFile, file, spectrumSimulator.getSimulatedSpectrum());
+
+                    break;
             }
         }
-
-
     }
 
     private void loadSimulation(String fileName) {
@@ -480,6 +510,11 @@ public class MainWindow extends JFrame implements Observer {
                 final JFileChooser fc;
                 if (lastFolder != null) fc = new JFileChooser(lastFolder);
                 else fc = new JFileChooser();
+                fc.addChoosableFileFilter(new CFileFilter("json", "Ruthelde Simulation File (*.json)"));
+                fc.addChoosableFileFilter(new CFileFilter("xml", "IBA Data Format (*.xml)"));
+                fc.addChoosableFileFilter(new CFileFilter("idf", "IBA Data Format (*.idf)"));
+                fc.addChoosableFileFilter(new CFileFilter("xnra", "SIMNRA file (*.xnra)"));
+                fc.setAcceptAllFileFilterUsed(false);
                 int returnVal = fc.showOpenDialog(this);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     file = fc.getSelectedFile();

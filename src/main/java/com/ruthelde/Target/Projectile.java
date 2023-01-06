@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 public class Projectile implements Serializable {
 
-    private static final int DEFAULT_Z =       2;
-    private static final int DEFAULT_M =       4;
-    private static final int DEFAULT_E =    1700;
+    private static final int DEFAULT_Z    =    2;
+    private static final double DEFAULT_M =    4.002603d;
+    private static final int DEFAULT_E    =    1700;
 
     int Z;
     double M, E;

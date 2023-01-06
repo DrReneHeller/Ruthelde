@@ -138,6 +138,11 @@ public class SpectrumSimulator {
         return simulationData;
     }
 
+    public double[] getSimulatedSpectrum(){
+
+        return simulationData.getSimulatedSpectrum();
+    }
+
     private void simulateSpectrum() {
 
         long millis = System.currentTimeMillis();
