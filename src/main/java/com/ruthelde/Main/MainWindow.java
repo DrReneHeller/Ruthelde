@@ -135,10 +135,37 @@ public class MainWindow extends JFrame implements Observer {
         spectrumSimulator.setTarget(targetModel.getTarget()); //Just to have an initial plot drawn
         uncertaintyEngine = new UncertaintyEngine();
 
-        if (args.length >= 3) {
+        if (args.length == 0) {
+            System.out.println("Usage: java -jar IBA.jar {help|run_de|simulate} [...]");
+            return;
+        }
 
+        if (args[0].equals("help")) {
+            System.out.println("Usage: java -jar IBA.jar {help|run_de|simulate} [...]");
+            System.out.println("help ");
+            System.out.println("run_de   [input] [fileType] [spectrum_1 ... spectrum_N]  runs differential evolution");
+            System.out.println("         [input] (absolute) path to IBA simulation file which is used to extract");
+            System.out.println("                 input parameters like target model and experimental constrains from.");
+            System.out.println("         [fileType] specifies the tye of following iba spectra. Allowed values:");
+            System.out.println("                    ASCII_ONE, ASCII_TWO, IBC_RBS, IBC_3MV_SINGLE, IBC_3MV_MULTI, IMEC, IBA_SIM");
+            System.out.println("         [spectrum_1 ... spectrum_N] (absolute) file paths to spectra files");
+            System.out.println("simulate [input-file] [output-file] Generate data from simulation");
+            System.exit(0);
+        }
+
+        if (args[0].equals("simulate")) {
+            System.out.println("Running simulation");
+            loadSimulation(args[1]);
+            spectraPlotWindow.setVisible(true);
+            spectraPlotWindow.setSize(800, 500);
+            File f = new File(args[2]);
+            spectraPlotWindow.exportAscii(f);
+            System.exit(0);
+        }
+
+        if (args[0].equals("run_de")) {
             System.out.println("Importing parameters from simulation file.");
-            loadSimulation(args[0]);
+            loadSimulation(args[1]);
 
             FileType fileType = null;
             if (args[1].equals("ASCII_ONE")) fileType = ONE_COLUMN_ASCII;
@@ -152,11 +179,11 @@ public class MainWindow extends JFrame implements Observer {
             if (fileType != null) {
                 System.out.println("Parsed file type to be *" + fileType.toString() + "*");
 
-                File files[] = new File[args.length - 2];
+                File files[] = new File[args.length - 3];
                 boolean error = false;
 
-                for (int i = 0; i < (args.length - 2); i++) {
-                    files[i] = new File(args[i + 2]);
+                for (int i = 0; i < (args.length - 3); i++) {
+                    files[i] = new File(args[i + 3]);
                     if (files[i] == null) {
                         error = true;
                         break;

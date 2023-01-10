@@ -89,7 +89,7 @@
                             <addClasspath>true</addClasspath>
                             <!-- Specifies that all dependencies of our application are found -->
                             <!-- Configures the main class of the application -->
-			    <mainClass>com.ruthelde.Main.MainWindow</mainClass>
+                            <mainClass>com.ruthelde.Main.MainWindow</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
