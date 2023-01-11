@@ -140,13 +140,13 @@ public class MainWindow extends JFrame implements Observer {
             loadSimulation(args[0]);
 
             FileType fileType = null;
-            if (args[1].equals("ASCII_ONE")) fileType = ONE_COLUMN_ASCII;
-            if (args[1].equals("ASCII_TWO")) fileType = TWO_COLUMN_ASCII;
-            if (args[1].equals("IBC_RBS")) fileType = IBC_RBS;
-            if (args[1].equals("IBC_3MV_SINGLE")) fileType = IBC_3MV_SINGLE;
-            if (args[1].equals("IBC_3MV_MULTI")) fileType = IBC_3MV_MULTI;
-            if (args[1].equals("IMEC")) fileType = IMEC;
-            if (args[1].equals("IBA_SIM")) fileType = IBA_SIM;
+            if (args[2].equals("ASCII_ONE")) fileType = ONE_COLUMN_ASCII;
+            if (args[2].equals("ASCII_TWO")) fileType = TWO_COLUMN_ASCII;
+            if (args[2].equals("IBC_RBS")) fileType = IBC_RBS;
+            if (args[2].equals("IBC_3MV_SINGLE")) fileType = IBC_3MV_SINGLE;
+            if (args[2].equals("IBC_3MV_MULTI")) fileType = IBC_3MV_MULTI;
+            if (args[2].equals("IMEC")) fileType = IMEC;
+            if (args[2].equals("IBA_SIM")) fileType = IBA_SIM;
 
             if (fileType != null) {
                 System.out.println("Parsed file type to be *" + fileType.toString() + "*");
