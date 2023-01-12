@@ -99,3 +99,8 @@
 
     - Added support of saving simulation file in IDF / SIMNRA file format
     - Changed CLI to support simulation + optimization
+
+2023_01_12 - V7.6.5
+
+    - Minor Bug-Fix in CLI
+    - Implementation of IDF (SIMNRA) file format started (not finished yet)
