@@ -1431,7 +1431,7 @@ public class MainWindow extends JFrame implements Observer {
 
     private void initComponents() {
 
-        this.setTitle("Ruthelde V7.6.5 - 2023_01_10 (C) R. Heller");
+        this.setTitle("Ruthelde V7.6.6 - 2023_01_17 (C) R. Heller");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
         pack();
