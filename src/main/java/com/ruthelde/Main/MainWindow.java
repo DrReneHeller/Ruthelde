@@ -136,11 +136,13 @@ public class MainWindow extends JFrame implements Observer {
         uncertaintyEngine = new UncertaintyEngine();
 
         if (args.length == 0) {
+
             System.out.println("Usage: java -jar IBA.jar {help|run_de|simulate} [...]");
             return;
         }
 
         if (args[0].equals("help")) {
+
             System.out.println("Usage: java -jar IBA.jar {help|run_de|simulate} [...]");
             System.out.println("help ");
             System.out.println("run_de   [input] [fileType] [spectrum_1 ... spectrum_N]  runs differential evolution");
@@ -154,6 +156,7 @@ public class MainWindow extends JFrame implements Observer {
         }
 
         if (args[0].equals("simulate")) {
+
             System.out.println("Running simulation");
             loadSimulation(args[1]);
             spectraPlotWindow.setVisible(true);
@@ -164,6 +167,7 @@ public class MainWindow extends JFrame implements Observer {
         }
 
         if (args[0].equals("run_de")) {
+
             System.out.println("Importing parameters from simulation file.");
             loadSimulation(args[1]);
 
@@ -429,7 +433,7 @@ public class MainWindow extends JFrame implements Observer {
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-        String fileFormat = "";
+        String fileFormat = "json";
 
         if (file == null) {
 

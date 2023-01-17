@@ -104,3 +104,7 @@
 
     - Minor Bug-Fix in CLI
     - Implementation of IDF (SIMNRA) file format started (not finished yet)
+
+2023_01_17 - V7.6.6
+
+        - Minor Bug-Fix in saving Simulation File
