@@ -130,6 +130,10 @@ public class SpectrumSimulator {
 
     public ExperimentalSetup getExperimentalSetup() {return experimentalSetup;}
 
+    public void applyStoppingCorrection(){
+        stoppingCalculator.setCorrectionFactors(calculationSetup.getCorrectionFactors());
+    }
+
     //--------------------- Simulation -------------------------------------------------------------------------------//
 
     public SimulationData simulate(){
@@ -315,7 +319,7 @@ public class SpectrumSimulator {
             projectile.setE(E);
             ScreeningMode screeningMode = calculationSetup.getScreeningMode();
             double sigma = KinematicsCalculator.getBSCrossSection(projectile, Z2, M2, theta, screeningMode, 0);
-            double Y_brick = 6.24E-3 * Q * AD * sigma * omega * c;
+            double Y_brick = 6.24E-3 * Q * AD * sigma * omega * c / Math.cos(Math.toRadians(alpha));
 
             if (channel < numberOfChannels-1) {
 

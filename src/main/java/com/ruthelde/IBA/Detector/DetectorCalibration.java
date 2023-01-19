@@ -61,8 +61,6 @@ public class DetectorCalibration implements Serializable {
         factor *= numBins;
         factor_min *= numBins;
         factor_max *= numBins;
-
-        System.out.println("test");
     }
 
     public void scaleFactorDown(int numBins){

@@ -107,4 +107,12 @@
 
 2023_01_17 - V7.6.6
 
-        - Minor Bug-Fix in saving Simulation File
+    - Minor Bug-Fix in saving Simulation File
+
+2023_01_19 - V7.7.0
+
+    - Bugfix: Loading Simulation File and applying stopping correction if present
+    - CLI-Mode: Program will report error to console and stop if reading of simulation file fails
+    - Reduced console output during DE optimization
+    - Bugfix: Re-binning to "1" after DE optimization and update of simulation
+    - Bugfix: Impact angle correction for BS yield

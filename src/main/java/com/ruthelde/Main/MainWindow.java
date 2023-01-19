@@ -158,57 +158,64 @@ public class MainWindow extends JFrame implements Observer {
         if (args[0].equals("simulate")) {
 
             System.out.println("Running simulation");
-            loadSimulation(args[1]);
-            spectraPlotWindow.setVisible(true);
-            spectraPlotWindow.setSize(800, 500);
-            File f = new File(args[2]);
-            spectraPlotWindow.exportAscii(f);
+            if (loadSimulation(args[1])) {
+                spectraPlotWindow.setVisible(true);
+                spectraPlotWindow.setSize(800, 500);
+                File f = new File(args[2]);
+                spectraPlotWindow.exportAscii(f);
+            }
             System.exit(0);
         }
 
         if (args[0].equals("run_de")) {
 
             System.out.println("Importing parameters from simulation file.");
-            loadSimulation(args[1]);
 
-            FileType fileType = null;
-            if (args[2].equals("ASCII_ONE")) fileType = ONE_COLUMN_ASCII;
-            if (args[2].equals("ASCII_TWO")) fileType = TWO_COLUMN_ASCII;
-            if (args[2].equals("IBC_RBS")) fileType = IBC_RBS;
-            if (args[2].equals("IBC_3MV_SINGLE")) fileType = IBC_3MV_SINGLE;
-            if (args[2].equals("IBC_3MV_MULTI")) fileType = IBC_3MV_MULTI;
-            if (args[2].equals("IMEC")) fileType = IMEC;
-            if (args[2].equals("IBA_SIM")) fileType = IBA_SIM;
+            if (loadSimulation(args[1])) {
 
-            if (fileType != null) {
-                System.out.println("Parsed file type to be *" + fileType.toString() + "*");
+                FileType fileType = null;
 
-                File files[] = new File[args.length - 3];
-                boolean error = false;
+                if (args[2].equals("ASCII_ONE")) fileType = ONE_COLUMN_ASCII;
+                if (args[2].equals("ASCII_TWO")) fileType = TWO_COLUMN_ASCII;
+                if (args[2].equals("IBC_RBS")) fileType = IBC_RBS;
+                if (args[2].equals("IBC_3MV_SINGLE")) fileType = IBC_3MV_SINGLE;
+                if (args[2].equals("IBC_3MV_MULTI")) fileType = IBC_3MV_MULTI;
+                if (args[2].equals("IMEC")) fileType = IMEC;
+                if (args[2].equals("IBA_SIM")) fileType = IBA_SIM;
 
-                for (int i = 0; i < (args.length - 3); i++) {
-                    files[i] = new File(args[i + 3]);
-                    if (files[i] == null) {
-                        error = true;
-                        break;
-                    }
-                }
+                if (fileType != null) {
 
-                if (!error) {
+                    System.out.println("Parsed file type to be *" + fileType.toString() + "*");
 
-                    System.out.println("Parsed " + files.length + " file names:");
-                    for (int i = 0; i < files.length; i++) {
-                        System.out.println("  " + files[i].getParent() + "/" + files[i].getName());
+                    File files[] = new File[args.length - 3];
+                    boolean error = false;
+
+                    for (int i = 0; i < (args.length - 3); i++) {
+                        files[i] = new File(args[i + 3]);
+                        if (files[i] == null) {
+                            error = true;
+                            break;
+                        }
                     }
 
-                    System.out.println("Starting DE algorithm.");
-                    spectraPlotWindow.setVisible(true);
-                    spectraPlotWindow.setSize(800, 500);
-                    eaStatusWindow.setVisible(true);
-                    fitnessPlotWindow.setVisible(true);
-                    console = true;
-                    doBatchGASimulation(files, fileType);
+                    if (!error) {
+
+                        System.out.println("Parsed " + files.length + " file names:");
+                        for (int i = 0; i < files.length; i++) {
+                            System.out.println("  " + files[i].getParent() + "/" + files[i].getName());
+                        }
+
+                        System.out.println("Starting DE algorithm.");
+                        spectraPlotWindow.setVisible(true);
+                        spectraPlotWindow.setSize(800, 500);
+                        eaStatusWindow.setVisible(true);
+                        fitnessPlotWindow.setVisible(true);
+                        console = true;
+                        doBatchGASimulation(files, fileType);
+                    }
                 }
+            } else {
+                System.exit(0);
             }
         } else {
 
@@ -521,7 +528,9 @@ public class MainWindow extends JFrame implements Observer {
 
                     break;
 
-                case "xml": case "idf": case "xnra":
+                case "xml":
+                case "idf":
+                case "xnra":
 
                     IDF_Converter.write_To_IDF_File(dataFile, file, spectrumSimulator.getSimulatedSpectrum());
 
@@ -530,7 +539,9 @@ public class MainWindow extends JFrame implements Observer {
         }
     }
 
-    private void loadSimulation(String fileName) {
+    private boolean loadSimulation(String fileName) {
+
+        boolean result = false;
 
         File file = null;
         String fileFormat = "json";
@@ -573,110 +584,120 @@ public class MainWindow extends JFrame implements Observer {
                         FileReader fr = new FileReader(file);
                         DataFile df = gson.fromJson(fr, DataFile.class);
 
-                        tfExpE0.setText(Helper.dblToDecStr(df.experimentalSetup.getE0(), 2));
-                        experimentalSetup.setE0(df.experimentalSetup.getE0());
+                        if (df != null) {
 
-                        tfExpDE0.setText(Helper.dblToDecStr(df.experimentalSetup.getDeltaE0(), 2));
-                        experimentalSetup.setDeltaE0(df.experimentalSetup.getDeltaE0());
+                            result = true;
 
-                        int z = df.experimentalSetup.getProjectile().getZ();
-                        double m = df.experimentalSetup.getProjectile().getM();
-                        tfExpZ1.setText(Integer.toString(z));
-                        experimentalSetup.getProjectile().setZ(z);
-                        experimentalSetup.getProjectile().setM(m);
-                        fillCBoxExpM1(m);
+                            tfExpE0.setText(Helper.dblToDecStr(df.experimentalSetup.getE0(), 2));
+                            experimentalSetup.setE0(df.experimentalSetup.getE0());
 
-                        experimentalSetup.setCharge(df.experimentalSetup.getCharge());
-                        experimentalSetup.setMinCharge(df.experimentalSetup.getMinCharge());
-                        experimentalSetup.setMaxCharge(df.experimentalSetup.getMaxCharge());
-                        updateChargeValues();
+                            tfExpDE0.setText(Helper.dblToDecStr(df.experimentalSetup.getDeltaE0(), 2));
+                            experimentalSetup.setDeltaE0(df.experimentalSetup.getDeltaE0());
 
-                        detectorSetup.setResolution(df.detectorSetup.getResolution());
-                        detectorSetup.setMinRes(df.detectorSetup.getMinRes());
-                        detectorSetup.setMaxRes(df.detectorSetup.getMaxRes());
-                        updateDetDE();
+                            int z = df.experimentalSetup.getProjectile().getZ();
+                            double m = df.experimentalSetup.getProjectile().getM();
+                            tfExpZ1.setText(Integer.toString(z));
+                            experimentalSetup.getProjectile().setZ(z);
+                            experimentalSetup.getProjectile().setM(m);
+                            fillCBoxExpM1(m);
 
-                        detectorSetup.setCalibrationFactor(df.detectorSetup.getCalibration().getFactor());
-                        detectorSetup.getCalibration().setFactorMin(df.detectorSetup.getCalibration().getFactorMin());
-                        detectorSetup.getCalibration().setFactorMax(df.detectorSetup.getCalibration().getFactorMax());
+                            experimentalSetup.setCharge(df.experimentalSetup.getCharge());
+                            experimentalSetup.setMinCharge(df.experimentalSetup.getMinCharge());
+                            experimentalSetup.setMaxCharge(df.experimentalSetup.getMaxCharge());
+                            updateChargeValues();
 
-                        detectorSetup.setCalibrationOffset(df.detectorSetup.getCalibration().getOffset());
-                        detectorSetup.getCalibration().setOffsetMin(df.detectorSetup.getCalibration().getOffsetMin());
-                        detectorSetup.getCalibration().setOffsetMax(df.detectorSetup.getCalibration().getOffsetMax());
-                        updateCalibration();
+                            detectorSetup.setResolution(df.detectorSetup.getResolution());
+                            detectorSetup.setMinRes(df.detectorSetup.getMinRes());
+                            detectorSetup.setMaxRes(df.detectorSetup.getMaxRes());
+                            updateDetDE();
 
-                        tfDetSolidAngle.setText(Helper.dblToDecStr(df.detectorSetup.getSolidAngle(), 2));
-                        detectorSetup.setSolidAngle(df.detectorSetup.getSolidAngle());
+                            detectorSetup.setCalibrationFactor(df.detectorSetup.getCalibration().getFactor());
+                            detectorSetup.getCalibration().setFactorMin(df.detectorSetup.getCalibration().getFactorMin());
+                            detectorSetup.getCalibration().setFactorMax(df.detectorSetup.getCalibration().getFactorMax());
 
-                        tfExpAlpha.setText(Helper.dblToDecStr(df.experimentalSetup.getAlpha(), 2));
-                        tFExpBeta.setText(Helper.dblToDecStr(df.experimentalSetup.getBeta(), 2));
-                        tfExpTheta.setText(Helper.dblToDecStr(df.experimentalSetup.getTheta(), 2));
+                            detectorSetup.setCalibrationOffset(df.detectorSetup.getCalibration().getOffset());
+                            detectorSetup.getCalibration().setOffsetMin(df.detectorSetup.getCalibration().getOffsetMin());
+                            detectorSetup.getCalibration().setOffsetMax(df.detectorSetup.getCalibration().getOffsetMax());
+                            updateCalibration();
 
-                        experimentalSetup.setAlpha(df.experimentalSetup.getAlpha());
-                        experimentalSetup.setTheta(df.experimentalSetup.getTheta());
+                            tfDetSolidAngle.setText(Helper.dblToDecStr(df.detectorSetup.getSolidAngle(), 2));
+                            detectorSetup.setSolidAngle(df.detectorSetup.getSolidAngle());
 
-                        calculationSetup.setShowElements(df.calculationSetup.isShowElements());
-                        calculationSetup.setShowIsotopes(df.calculationSetup.isShowIsotopes());
-                        calculationSetup.setShowLayers(df.calculationSetup.isShowLayers());
-                        calculationSetup.setSimulateIsotopes(df.calculationSetup.isSimulateIsotopes());
-                        calculationSetup.setCorrectionFactors(df.calculationSetup.getCorrectionFactors());
+                            tfExpAlpha.setText(Helper.dblToDecStr(df.experimentalSetup.getAlpha(), 2));
+                            tFExpBeta.setText(Helper.dblToDecStr(df.experimentalSetup.getBeta(), 2));
+                            tfExpTheta.setText(Helper.dblToDecStr(df.experimentalSetup.getTheta(), 2));
 
-                        spectrumSimulator.setCalculationSetup(calculationSetup);
+                            experimentalSetup.setAlpha(df.experimentalSetup.getAlpha());
+                            experimentalSetup.setTheta(df.experimentalSetup.getTheta());
 
-                        blockEvents = true;
-                        buildMenu();
-                        blockEvents = false;
+                            calculationSetup.setShowElements(df.calculationSetup.isShowElements());
+                            calculationSetup.setShowIsotopes(df.calculationSetup.isShowIsotopes());
+                            calculationSetup.setShowLayers(df.calculationSetup.isShowLayers());
+                            calculationSetup.setSimulateIsotopes(df.calculationSetup.isSimulateIsotopes());
+                            calculationSetup.setCorrectionFactors(df.calculationSetup.getCorrectionFactors());
 
-                        deParameter = df.deParameter;
+                            spectrumSimulator.setCalculationSetup(calculationSetup);
 
-                        spectrumSimulator.setStartChannel(deParameter.startCH);
-                        spectrumSimulator.setStopChannel(deParameter.endCH);
-                        tf_ch_min.setText("" + (int) df.deParameter.startCH);
-                        tf_ch_max.setText("" + (int) df.deParameter.endCH);
-                        spectrumSimulator.setExperimentalSpectrum(df.experimentalSpectrum);
+                            blockEvents = true;
+                            buildMenu();
+                            blockEvents = false;
 
-                        targetModel.setTarget(df.target);
-                        targetView.updateTarget();
+                            deParameter = df.deParameter;
 
-                        //TODO: Include Foil
+                            spectrumSimulator.setStartChannel(deParameter.startCH);
+                            spectrumSimulator.setStopChannel(deParameter.endCH);
+                            tf_ch_min.setText("" + (int) df.deParameter.startCH);
+                            tf_ch_max.setText("" + (int) df.deParameter.endCH);
+                            spectrumSimulator.setExperimentalSpectrum(df.experimentalSpectrum);
+                            spectrumSimulator.applyStoppingCorrection();
 
-                        spectraPlotWindow.setLocation(new Point((int) df.windowPositions.spectrumWindow.x, (int) df.windowPositions.spectrumWindow.y));
-                        spectraPlotWindow.setSize(new Dimension((int) df.windowPositions.spectrumWindow.width, (int) df.windowPositions.spectrumWindow.height));
-                        spectraPlotWindow.setVisible(df.windowPositions.spectrumWindow.visible);
+                            targetModel.setTarget(df.target);
+                            targetView.updateTarget();
 
-                        depthPlotWindow.setLocation(new Point((int) df.windowPositions.depthPlotWindow.x, (int) df.windowPositions.depthPlotWindow.y));
-                        depthPlotWindow.setSize(new Dimension((int) df.windowPositions.depthPlotWindow.width, (int) df.windowPositions.depthPlotWindow.height));
-                        depthPlotWindow.setVisible(df.windowPositions.depthPlotWindow.visible);
+                            //TODO: Include Foil
 
-                        stoppingPlotWindow.setLocation(new Point((int) df.windowPositions.stoppingPlotWindow.x, (int) df.windowPositions.stoppingPlotWindow.y));
-                        stoppingPlotWindow.setSize(new Dimension((int) df.windowPositions.stoppingPlotWindow.width, (int) df.windowPositions.stoppingPlotWindow.height));
-                        stoppingPlotWindow.setVisible(df.windowPositions.stoppingPlotWindow.visible);
+                            spectraPlotWindow.setLocation(new Point((int) df.windowPositions.spectrumWindow.x, (int) df.windowPositions.spectrumWindow.y));
+                            spectraPlotWindow.setSize(new Dimension((int) df.windowPositions.spectrumWindow.width, (int) df.windowPositions.spectrumWindow.height));
+                            spectraPlotWindow.setVisible(df.windowPositions.spectrumWindow.visible);
 
-                        eaStatusWindow.setLocation(new Point((int) df.windowPositions.eaStatusWindow.x, (int) df.windowPositions.eaStatusWindow.y));
-                        eaStatusWindow.setSize(new Dimension((int) df.windowPositions.eaStatusWindow.width, (int) df.windowPositions.eaStatusWindow.height));
-                        eaStatusWindow.setVisible(df.windowPositions.eaStatusWindow.visible);
+                            depthPlotWindow.setLocation(new Point((int) df.windowPositions.depthPlotWindow.x, (int) df.windowPositions.depthPlotWindow.y));
+                            depthPlotWindow.setSize(new Dimension((int) df.windowPositions.depthPlotWindow.width, (int) df.windowPositions.depthPlotWindow.height));
+                            depthPlotWindow.setVisible(df.windowPositions.depthPlotWindow.visible);
 
-                        fitnessPlotWindow.setLocation(new Point((int) df.windowPositions.eaFitnessWindow.x, (int) df.windowPositions.eaFitnessWindow.y));
-                        fitnessPlotWindow.setSize(new Dimension((int) df.windowPositions.eaFitnessWindow.width, (int) df.windowPositions.eaFitnessWindow.height));
-                        fitnessPlotWindow.setVisible(df.windowPositions.eaFitnessWindow.visible);
+                            stoppingPlotWindow.setLocation(new Point((int) df.windowPositions.stoppingPlotWindow.x, (int) df.windowPositions.stoppingPlotWindow.y));
+                            stoppingPlotWindow.setSize(new Dimension((int) df.windowPositions.stoppingPlotWindow.width, (int) df.windowPositions.stoppingPlotWindow.height));
+                            stoppingPlotWindow.setVisible(df.windowPositions.stoppingPlotWindow.visible);
+
+                            eaStatusWindow.setLocation(new Point((int) df.windowPositions.eaStatusWindow.x, (int) df.windowPositions.eaStatusWindow.y));
+                            eaStatusWindow.setSize(new Dimension((int) df.windowPositions.eaStatusWindow.width, (int) df.windowPositions.eaStatusWindow.height));
+                            eaStatusWindow.setVisible(df.windowPositions.eaStatusWindow.visible);
+
+                            fitnessPlotWindow.setLocation(new Point((int) df.windowPositions.eaFitnessWindow.x, (int) df.windowPositions.eaFitnessWindow.y));
+                            fitnessPlotWindow.setSize(new Dimension((int) df.windowPositions.eaFitnessWindow.width, (int) df.windowPositions.eaFitnessWindow.height));
+                            fitnessPlotWindow.setVisible(df.windowPositions.eaFitnessWindow.visible);
+                        }
 
                         break;
 
-                    case "xml": case "idf": case "xnra":
+                    case "xml":
+                    case "idf":
+                    case "xnra":
 
                         BufferedReader inputBuffer = new BufferedReader(new FileReader(file));
                         String currentLine;
                         boolean error = false;
 
                         StringBuilder sb = new StringBuilder();
-                        while ((currentLine = inputBuffer.readLine()) != null) { sb.append(currentLine + "\n"); }
+                        while ((currentLine = inputBuffer.readLine()) != null) {
+                            sb.append(currentLine + "\n");
+                        }
                         String text = sb.toString();
 
                         int start = text.indexOf("<layeredstructure>");
-                        int end   = text.indexOf("</layeredstructure>");
+                        int end = text.indexOf("</layeredstructure>");
 
                         String subStr = text.substring(start, end);
-                        
+
                         start = subStr.indexOf("<nlayers>") + 9;
                         end = subStr.indexOf("</nlayers>");
 
@@ -701,11 +722,13 @@ public class MainWindow extends JFrame implements Observer {
             }
 
         } catch (Exception ex) {
-            System.out.println("Error loading simulation file: ");
-            ex.printStackTrace();
+            result = false;
+            ex.toString();
         }
 
+        if (!result) System.out.println("Error loading simulation file.");
 
+        return result;
     }
 
     private void makeAndSaveExpSpectrum() {
@@ -1387,6 +1410,7 @@ public class MainWindow extends JFrame implements Observer {
             }
             if (!uncertaintyEngine.running) {
                 copyBestCandidate();
+                gaRunning = false;
                 updateSimulation();
             } else {
                 uncertaintyEngine.updateOutput(gaEngineWorker.getGaEngine().getBest(), deParameter.numBins);
@@ -1396,7 +1420,6 @@ public class MainWindow extends JFrame implements Observer {
         }
 
         gaRunning = false;
-
     }
 
     private void copyBestCandidate() {
@@ -1431,7 +1454,7 @@ public class MainWindow extends JFrame implements Observer {
 
     private void initComponents() {
 
-        this.setTitle("Ruthelde V7.6.6 - 2023_01_17 (C) R. Heller");
+        this.setTitle("Ruthelde V7.7.0 - 2023_01_19 (C) R. Heller");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
         pack();

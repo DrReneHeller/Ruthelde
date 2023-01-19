@@ -86,13 +86,16 @@ public class GAEngine {
 
         boolean plotRefresh = false;
 
-        System.out.println("Starting calculation of new generation [" + generationCounter + "]");
+        //TODO: Reduce the console output to just the gneration numer and make line break only ech 10 generations
+
+        //System.out.println("Starting calculation of new generation [" + generationCounter + "]");
+        System.out.print(generationCounter + "");
 
         long currentMillis = System.currentTimeMillis();
         totalTime += currentMillis - lastMillis;
         lastMillis = currentMillis;
 
-        System.out.print("  Implementing transitions ... ");
+        //System.out.print("  Implementing transitions ... ");
 
         double simTime = 0.0f           ;
         int    index   = 0              ;
@@ -271,10 +274,11 @@ public class GAEngine {
             }
         }
 
-        System.out.println("Done.");
+        //System.out.println("Done.");
+        System.out.print(".");
 
 
-        System.out.print("  Updating outputs ... ");
+        //System.out.print("  Updating outputs ... ");
 
         fitnessPlotter.addDataEntry(bestFitness, averageFitness);
         fitnessPlotWindow.setPlotSeries(fitnessPlotter.makePlots());
@@ -307,9 +311,10 @@ public class GAEngine {
 
         getInfo(infoBox, clippingReport);
 
-        System.out.println("Done.");
+        //System.out.println("Done.");
+        System.out.print(".");
 
-        System.out.print("  Checking for stop condition(s) ... ");
+        //System.out.print("  Checking for stop condition(s) ... ");
 
         //check if isotope simulation needs to be turned on
         final float ms = 1000.0f;
@@ -326,11 +331,13 @@ public class GAEngine {
         if (deParameter.endFitness    > 0 && bestFitness          > deParameter.endFitness) stop=true;
         if (deParameter.endGeneration > 0 && generationCounter > deParameter.endGeneration) stop=true;
 
-        System.out.println("Done.");
+        //System.out.println("Done.");
+        System.out.print(".");
 
         generationCounter++;
 
-        System.out.println("Calculation of generation done. \n");
+        //System.out.println("Calculation of generation done. \n");
+        if (generationCounter % 10 == 0)  System.out.println("");
 
         return stop;
     }
