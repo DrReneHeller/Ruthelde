@@ -635,7 +635,8 @@ public class SpectrumSimulator {
         }
 
         //sigma2 = 100.0f / (Math.log(sigma2) - Math.log(LFF));
-        sigma2 = LFF / sigma2 * 100.0f;
+        //sigma2 = LFF / sigma2 * 100.0f;
+        sigma2 = Math.log(LFF) / Math.log(sigma2) * 100.0f;
         return sigma2;
     }
 

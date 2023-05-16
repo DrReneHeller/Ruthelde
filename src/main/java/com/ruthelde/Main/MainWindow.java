@@ -137,13 +137,13 @@ public class MainWindow extends JFrame implements Observer {
 
         if (args.length == 0) {
 
-            System.out.println("Usage: java -jar IBA.jar {help|run_de|simulate} [...]");
+            System.out.println("Usage: java -jar IBA.jar {help|run_de|simulate|open} [...]");
             return;
         }
 
         if (args[0].equals("help")) {
 
-            System.out.println("Usage: java -jar IBA.jar {help|run_de|simulate} [...]");
+            System.out.println("Usage: java -jar IBA.jar {help|run_de|simulate|open} [...]");
             System.out.println("help ");
             System.out.println("run_de   [input] [fileType] [spectrum_1 ... spectrum_N]  runs differential evolution");
             System.out.println("         [input] (absolute) path to IBA simulation file which is used to extract");
@@ -151,7 +151,8 @@ public class MainWindow extends JFrame implements Observer {
             System.out.println("         [fileType] specifies the tye of following iba spectra. Allowed values:");
             System.out.println("                    ASCII_ONE, ASCII_TWO, IBC_RBS, IBC_3MV_SINGLE, IBC_3MV_MULTI, IMEC, IBA_SIM");
             System.out.println("         [spectrum_1 ... spectrum_N] (absolute) file paths to spectra files");
-            System.out.println("simulate [input-file] [output-file] Generate data from simulation");
+            System.out.println("simulate [input-file] [output-file] Generate data automatically from simulation");
+            System.out.println("open [input-file] Opens Ruthelde with specified simulation file");
             System.exit(0);
         }
 
@@ -165,6 +166,12 @@ public class MainWindow extends JFrame implements Observer {
                 spectraPlotWindow.exportAscii(f);
             }
             System.exit(0);
+        }
+
+        if (args[0].equals("open")) {
+
+            System.out.println("Starting Ruthelde with specified simulation file");
+            loadSimulation(args[1]);
         }
 
         if (args[0].equals("run_de")) {
@@ -644,10 +651,33 @@ public class MainWindow extends JFrame implements Observer {
 
                             deParameter = df.deParameter;
 
+                            if (deParameter.startCH >= df.experimentalSpectrum.length - 1) {
+
+                                deParameter.startCH = df.experimentalSpectrum.length - 2;
+                                System.out.print("Parameter *Start_Channel to high. Changed to ");
+                                System.out.println("" + deParameter.startCH);
+                            }
+
+                            if (deParameter.endCH >= df.experimentalSpectrum.length - 1) {
+
+                                deParameter.endCH = df.experimentalSpectrum.length - 2;
+                                System.out.print("Parameter *End_Channel to high. Changed to ");
+                                System.out.println("" + deParameter.endCH);
+                            }
+
+                            if (deParameter.startCH >= deParameter.endCH) {
+
+                                deParameter.startCH = deParameter.endCH - 2;
+                                System.out.print("Parameter *Start_Channel to high. Changed to ");
+                                System.out.println("" + deParameter.startCH);
+                            }
+
                             spectrumSimulator.setStartChannel(deParameter.startCH);
                             spectrumSimulator.setStopChannel(deParameter.endCH);
-                            tf_ch_min.setText("" + (int) df.deParameter.startCH);
-                            tf_ch_max.setText("" + (int) df.deParameter.endCH);
+                            //tf_ch_min.setText("" + (int) df.deParameter.startCH);
+                            //tf_ch_max.setText("" + (int) df.deParameter.endCH);
+                            tf_ch_min.setText("" + (int) deParameter.startCH);
+                            tf_ch_max.setText("" + (int) deParameter.endCH);
                             spectrumSimulator.setExperimentalSpectrum(df.experimentalSpectrum);
                             spectrumSimulator.applyStoppingCorrection();
 
@@ -723,7 +753,7 @@ public class MainWindow extends JFrame implements Observer {
 
         } catch (Exception ex) {
             result = false;
-            ex.toString();
+            ex.printStackTrace();
         }
 
         if (!result) System.out.println("Error loading simulation file.");
@@ -954,9 +984,9 @@ public class MainWindow extends JFrame implements Observer {
         double minCharge = experimentalSetup.getMinCharge();
         double maxCharge = experimentalSetup.getMaxCharge();
 
-        tfExpCharge.setText(Helper.dblToDecStr(charge, 2));
-        tfExpChargeMin.setText(Helper.dblToDecStr(minCharge, 2));
-        tfExpChargeMax.setText(Helper.dblToDecStr(maxCharge, 2));
+        tfExpCharge.setText(Helper.dblToDecStr(charge, 3));
+        tfExpChargeMin.setText(Helper.dblToDecStr(minCharge, 3));
+        tfExpChargeMax.setText(Helper.dblToDecStr(maxCharge, 3));
     }
 
     private void setExpCharge() {
@@ -1040,9 +1070,9 @@ public class MainWindow extends JFrame implements Observer {
         double minRes = detectorSetup.getMinRes();
         double maxRes = detectorSetup.getMaxRes();
 
-        tfDetDE.setText(Helper.dblToDecStr(res, 2));
-        tfDetDEMin.setText(Helper.dblToDecStr(minRes, 2));
-        tfDetDEMax.setText(Helper.dblToDecStr(maxRes, 2));
+        tfDetDE.setText(Helper.dblToDecStr(res, 4));
+        tfDetDEMin.setText(Helper.dblToDecStr(minRes, 4));
+        tfDetDEMax.setText(Helper.dblToDecStr(maxRes, 4));
     }
 
     private void updateCalibration() {
@@ -1054,9 +1084,9 @@ public class MainWindow extends JFrame implements Observer {
         double offsetMin = detectorSetup.getCalibration().getOffsetMin();
         double offsetMax = detectorSetup.getCalibration().getOffsetMax();
 
-        tfDetCalFactor.setText(Helper.dblToDecStr(factor, 2));
-        tfDetCalFactorMin.setText(Helper.dblToDecStr(factorMin, 2));
-        tfDetCalFactorMax.setText(Helper.dblToDecStr(factorMax, 2));
+        tfDetCalFactor.setText(Helper.dblToDecStr(factor, 4));
+        tfDetCalFactorMin.setText(Helper.dblToDecStr(factorMin, 4));
+        tfDetCalFactorMax.setText(Helper.dblToDecStr(factorMax, 4));
         tfDetCalOffset.setText(Helper.dblToDecStr(offset, 2));
         tfDetCalOffsetMin.setText(Helper.dblToDecStr(offsetMin, 2));
         tfDetCalOffsetMax.setText(Helper.dblToDecStr(offsetMax, 2));
@@ -1437,8 +1467,8 @@ public class MainWindow extends JFrame implements Observer {
 
         tfDetCalFactor.setText(Helper.dblToDecStr(individual.getCalibrationFactor() / deParameter.numBins, 4));
         tfDetCalOffset.setText(Helper.dblToDecStr(individual.getCalibrationOffset(), 2));
-        tfExpCharge.setText(Helper.dblToDecStr(individual.getCharge(), 2));
-        tfDetDE.setText(Helper.dblToDecStr(individual.getResolution(), 2));
+        tfExpCharge.setText(Helper.dblToDecStr(individual.getCharge(), 4));
+        tfDetDE.setText(Helper.dblToDecStr(individual.getResolution(), 4));
 
         setExpCharge();
         blockEvents = false;
@@ -1454,7 +1484,7 @@ public class MainWindow extends JFrame implements Observer {
 
     private void initComponents() {
 
-        this.setTitle("Ruthelde V7.7.0 - 2023_01_19 (C) R. Heller");
+        this.setTitle("Ruthelde V7.7.1 - 2023_05_16 (C) R. Heller");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
         pack();
@@ -1632,21 +1662,15 @@ public class MainWindow extends JFrame implements Observer {
             blockEvents = false;
         });
 
-        tfExpChargeMin.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!blockEvents) {
-                    setExpMinCharge();
-                }
+        tfExpChargeMin.addActionListener(e -> {
+            if (!blockEvents) {
+                setExpMinCharge();
             }
         });
 
-        tfExpChargeMax.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!blockEvents) {
-                    setExpMaxCharge();
-                }
+        tfExpChargeMax.addActionListener(e -> {
+            if (!blockEvents) {
+                setExpMaxCharge();
             }
         });
 

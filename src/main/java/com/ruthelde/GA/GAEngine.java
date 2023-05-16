@@ -86,8 +86,6 @@ public class GAEngine {
 
         boolean plotRefresh = false;
 
-        //TODO: Reduce the console output to just the gneration numer and make line break only ech 10 generations
-
         //System.out.println("Starting calculation of new generation [" + generationCounter + "]");
         System.out.print(generationCounter + "");
 

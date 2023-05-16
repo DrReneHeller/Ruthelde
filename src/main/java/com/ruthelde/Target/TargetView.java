@@ -44,6 +44,8 @@ public class TargetView extends JFrame {
     private JTextField tfMaxAD;
     private JTextField tfRatioMin;
     private JTextField tfRatioMax;
+    private JButton btnLayerUp;
+    private JButton btnLayerDown;
 
     private TargetModel targetModel;
     private String lastFolder;
@@ -99,11 +101,11 @@ public class TargetView extends JFrame {
         double massDensity = targetModel.getTarget().getLayerList().get(layerIndex).getMassDensity();
         tfLayerMassDensity.setText(Helper.dblToDecStr(massDensity, 2));
         double arealDensity = targetModel.getTarget().getLayerList().get(layerIndex).getArealDensity();
-        tfLayerAD.setText(Helper.dblToDecStr(arealDensity, 2));
+        tfLayerAD.setText(Helper.dblToDecStr(arealDensity, 4));
         double minAD = targetModel.getTarget().getLayerList().get(layerIndex).getMinAD();
-        tfMinAD.setText(Helper.dblToDecStr(minAD, 2));
+        tfMinAD.setText(Helper.dblToDecStr(minAD, 4));
         double maxAD = targetModel.getTarget().getLayerList().get(layerIndex).getMaxAD();
-        tfMaxAD.setText(Helper.dblToDecStr(maxAD, 2));
+        tfMaxAD.setText(Helper.dblToDecStr(maxAD, 4));
         double thickness = targetModel.getTarget().getLayerList().get(layerIndex).getThickness();
         tfLayerThickness.setText(Helper.dblToDecStr(thickness, 2));
     }
@@ -200,17 +202,56 @@ public class TargetView extends JFrame {
     }
 
     private void swapLayers() {
+
         int layerIndex = liLayers.getSelectedIndex();
         Target target = targetModel.getTarget();
+        int newLayerIndex = layerIndex;
         try {
-            int newLayerIndex = Integer.parseInt(tfLayerPosition.getText()) - 1;
+            newLayerIndex = Integer.parseInt(tfLayerPosition.getText()) - 1;
             target.swapLayers(layerIndex, newLayerIndex);
         } catch (NumberFormatException ex) {
             lblErrorMsg.setText("Error parsing layer index.");
         }
+
+
         targetModel.setTarget(target);
         fillLayerList();
-        liLayers.setSelectedIndex(layerIndex);
+
+        int selectedIndex = newLayerIndex;
+        if (selectedIndex < 0) selectedIndex = 0;
+        if (selectedIndex > target.getLayerList().size() - 1)  selectedIndex = target.getLayerList().size() - 1;
+        liLayers.setSelectedIndex(selectedIndex);
+
+        updateLayerProperties();
+        fillElementList();
+        liElements.setSelectedIndex(0);
+        updateElementProperties();
+        fillIsotopeList();
+        liIsotopes.setSelectedIndex(0);
+        updateIsotopeProperties();
+    }
+
+    private void shiftLayer(int direction) {
+
+        //direction = 0 --> shift layer up
+        //direction = 1 --> shift layer down
+
+        int layerIndex = liLayers.getSelectedIndex();
+        Target target = targetModel.getTarget();
+
+        int newLayerIndex;
+
+        if (direction == 0) newLayerIndex = layerIndex - 1;
+        else newLayerIndex = layerIndex + 1;
+
+        target.swapLayers(layerIndex, newLayerIndex);
+
+        targetModel.setTarget(target);
+        fillLayerList();
+        int selectedIndex = newLayerIndex;
+        if (selectedIndex < 0) selectedIndex = 0;
+        if (selectedIndex > target.getLayerList().size() - 1)  selectedIndex = target.getLayerList().size() - 1;
+        liLayers.setSelectedIndex(selectedIndex);
         updateLayerProperties();
         fillElementList();
         liElements.setSelectedIndex(0);
@@ -552,6 +593,10 @@ public class TargetView extends JFrame {
 
         btnRemoveLayer.addActionListener(e -> removeLayer());
 
+        btnLayerUp.addActionListener(e -> shiftLayer(0));
+
+        btnLayerDown.addActionListener(e -> shiftLayer(1));
+
         btnAddElement.addActionListener(e -> addElement());
 
         btnRemoveElement.addActionListener(e -> removeElement());
@@ -692,7 +737,7 @@ public class TargetView extends JFrame {
      */
     private void $$$setupUI$$$() {
         rootPanel = new JPanel();
-        rootPanel.setLayout(new GridLayoutManager(5, 6, new Insets(5, 5, 5, 5), -1, -1));
+        rootPanel.setLayout(new GridLayoutManager(6, 6, new Insets(5, 5, 5, 5), -1, -1));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(1, 1, new Insets(5, 5, 5, 5), -1, -1));
         rootPanel.add(panel1, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(166, 169), null, 0, false));
@@ -738,21 +783,12 @@ public class TargetView extends JFrame {
         btnRemoveLayer = new JButton();
         btnRemoveLayer.setText("Remove");
         rootPanel.add(btnRemoveLayer, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        btnNormalizeElements = new JButton();
-        btnNormalizeElements.setText("Normalize");
-        rootPanel.add(btnNormalizeElements, new GridConstraints(4, 2, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnAddIsotope = new JButton();
         btnAddIsotope.setText("Add");
         rootPanel.add(btnAddIsotope, new GridConstraints(3, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnRemoveIsotope = new JButton();
         btnRemoveIsotope.setText("Remove");
         rootPanel.add(btnRemoveIsotope, new GridConstraints(3, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        btnNormalizeIsotopes = new JButton();
-        btnNormalizeIsotopes.setText("Normalize");
-        rootPanel.add(btnNormalizeIsotopes, new GridConstraints(4, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        btnNaturalizeIsotopes = new JButton();
-        btnNaturalizeIsotopes.setText("Naturalize");
-        rootPanel.add(btnNaturalizeIsotopes, new GridConstraints(4, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel4 = new JPanel();
         panel4.setLayout(new GridLayoutManager(6, 2, new Insets(5, 5, 5, 5), -1, -1));
         rootPanel.add(panel4, new GridConstraints(1, 2, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -853,9 +889,24 @@ public class TargetView extends JFrame {
         panel6.add(label16, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         lblErrorMsg = new JLabel();
         lblErrorMsg.setText("");
-        rootPanel.add(lblErrorMsg, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        rootPanel.add(lblErrorMsg, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer3 = new Spacer();
         rootPanel.add(spacer3, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        btnLayerUp = new JButton();
+        btnLayerUp.setText("Up");
+        rootPanel.add(btnLayerUp, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnNormalizeElements = new JButton();
+        btnNormalizeElements.setText("Normalize");
+        rootPanel.add(btnNormalizeElements, new GridConstraints(4, 2, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnNormalizeIsotopes = new JButton();
+        btnNormalizeIsotopes.setText("Normalize");
+        rootPanel.add(btnNormalizeIsotopes, new GridConstraints(4, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnNaturalizeIsotopes = new JButton();
+        btnNaturalizeIsotopes.setText("Naturalize");
+        rootPanel.add(btnNaturalizeIsotopes, new GridConstraints(4, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnLayerDown = new JButton();
+        btnLayerDown.setText("Down");
+        rootPanel.add(btnLayerDown, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
@@ -864,4 +915,5 @@ public class TargetView extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return rootPanel;
     }
+
 }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.ruthelde.Target.TargetView">
-  <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="5" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="6" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="5" left="5" bottom="5" right="5"/>
     <constraints>
-      <xy x="20" y="20" width="954" height="457"/>
+      <xy x="20" y="20" width="954" height="485"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -118,14 +118,6 @@
           <text value="Remove"/>
         </properties>
       </component>
-      <component id="c3a5a" class="javax.swing.JButton" binding="btnNormalizeElements">
-        <constraints>
-          <grid row="4" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Normalize"/>
-        </properties>
-      </component>
       <component id="5bdcc" class="javax.swing.JButton" binding="btnAddIsotope">
         <constraints>
           <grid row="3" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -140,22 +132,6 @@
         </constraints>
         <properties>
           <text value="Remove"/>
-        </properties>
-      </component>
-      <component id="2c12f" class="javax.swing.JButton" binding="btnNormalizeIsotopes">
-        <constraints>
-          <grid row="4" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Normalize"/>
-        </properties>
-      </component>
-      <component id="fd361" class="javax.swing.JButton" binding="btnNaturalizeIsotopes">
-        <constraints>
-          <grid row="4" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Naturalize"/>
         </properties>
       </component>
       <grid id="3013a" layout-manager="GridLayoutManager" row-count="6" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -444,7 +420,7 @@
       </grid>
       <component id="a205f" class="javax.swing.JLabel" binding="lblErrorMsg">
         <constraints>
-          <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value=""/>
@@ -455,6 +431,46 @@
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
       </vspacer>
+      <component id="58b8f" class="javax.swing.JButton" binding="btnLayerUp">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Up"/>
+        </properties>
+      </component>
+      <component id="c3a5a" class="javax.swing.JButton" binding="btnNormalizeElements">
+        <constraints>
+          <grid row="4" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Normalize"/>
+        </properties>
+      </component>
+      <component id="2c12f" class="javax.swing.JButton" binding="btnNormalizeIsotopes">
+        <constraints>
+          <grid row="4" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Normalize"/>
+        </properties>
+      </component>
+      <component id="fd361" class="javax.swing.JButton" binding="btnNaturalizeIsotopes">
+        <constraints>
+          <grid row="4" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Naturalize"/>
+        </properties>
+      </component>
+      <component id="a4883" class="javax.swing.JButton" binding="btnLayerDown">
+        <constraints>
+          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Down"/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>
