@@ -120,8 +120,12 @@
 
 2023_05_16 - V7.7.1
 
-    - Fixed loading of Simulation Files and introduced chaeck for sanity of lower and upper channel bounds
+    - Fixed loading of Simulation Files and introduced check for sanity of lower and upper channel bounds
     - Added "Move Up" / "Move Down" buttons to layer list in target configurator
     - Changed precision of charge and detector calibration inputs to 4 in main window
     - Changed precision of areal density inputs in target configurator to 4
     - introduced option "open [simulation_file]" to be passed as argument for console operation
+
+2323_08_22 - V7.8
+
+    - Added support for loading and using .r33 cross section file

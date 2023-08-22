@@ -1,8 +1,11 @@
 package com.ruthelde.IBA.Kinematics;
 
+import com.ruthelde.Globals.Globals;
 import com.ruthelde.IBA.CalculationSetup.ScreeningMode;
 import com.ruthelde.Stopping.*;
 import com.ruthelde.Target.*;
+
+import java.util.LinkedList;
 
 public final class KinematicsCalculator {
 
@@ -12,11 +15,18 @@ public final class KinematicsCalculator {
     private static StoppingCalculationMode stoppingPowerCalculationMode ;
     private static CompoundCalculationMode compoundCalculationMode      ;
 
+    public static LinkedList<CrossSectionData> crossSectionData = new LinkedList<>();
+
     public KinematicsCalculator() {
         setStoppingPowerCalculationMode(DEFAULT_STOPPING_MODE);
         setCompoundCalculationMode(DEFAULT_COMPOUND_MODE);
     }
 
+    public static void addCrossSectionData(){
+
+        CrossSectionData csde = new CrossSectionData();
+        if (csde.loadFromFile()) crossSectionData.add(csde);
+    }
 
     public static void setStoppingPowerCalculationMode(StoppingCalculationMode _stoppingPowerCalculationMode) {
         if (_stoppingPowerCalculationMode != null) {
@@ -204,37 +214,36 @@ public final class KinematicsCalculator {
         double M1, E0, ECM, F, V1, thetaLS, thetaCM;
         int Z1;
 
-        switch (screeningMode) {
+        F = 1.0d;
 
-            case NONE:
-                if (index == 0) {
-                    result = getBSCrossSectionA(projectile, Z2, M2, theta);
-                } else {
-                    result = getBSCrossSectionB(projectile, Z2, M2, theta);
-                }
+        Z1  = projectile.getZ();
+        M1  = projectile.getM();
+        E0  = projectile.getE();
+        ECM = M2 / (M1+M2) * E0;
+
+        //Check if there is an entry is the cross-section list. If not index will stay at -1
+        int crossSectionListEntryIndex = -1;
+        int tmp = 0;
+
+        for (CrossSectionData csd : crossSectionData){
+            if (Z1 == csd.Z1 && (int)M1 == (int)csd.M1 && Z2 == csd.Z2 && (int)M2 == (int)csd.M2){
+                crossSectionListEntryIndex = tmp;
                 break;
+            }
+            tmp++;
+        }
+
+        //Calculate screening factor
+        switch (screeningMode) {
 
             case LECUYER:
 
-                M1  = projectile.getM();
-                E0  = projectile.getE();
-                Z1  = projectile.getZ();
-                ECM = M2 / (M1+M2) * E0;
-
                 F   = 1.0 - 0.04873 * Z1 * Math.pow(Z2,4.0/3.0) / ECM;
-                if (index == 0) {
-                    result = F * getBSCrossSectionA(projectile, Z2, M2, theta);
-                } else {
-                    result = F * getBSCrossSectionB(projectile, Z2, M2, theta);
-                }
+
                 break;
 
             case ANDERSON:
 
-                M1       = projectile.getM();
-                E0       = projectile.getE();
-                Z1       = projectile.getZ();
-                ECM      = M2 / (M1+M2) * E0;
                 thetaLS  = Math.toRadians(theta);
                 thetaCM  = thetaLS + Math.asin(M1/M2 * Math.sin(thetaLS));
 
@@ -244,15 +253,56 @@ public final class KinematicsCalculator {
                 F        = Math.pow(1.0d + V1/ECM + F*F, 2);
                 F        = Math.pow(1.0d + 0.5d * V1/ECM, 2) / F;
 
-                if (index == 0) {
-                    result = F * getBSCrossSectionA(projectile, Z2, M2, theta);
-                } else {
-                    result = F * getBSCrossSectionB(projectile, Z2, M2, theta);
-                }
                 break;
+
+            case NONE:
 
             default:
                 break;
+        }
+
+        boolean rr = true;
+
+        if(crossSectionListEntryIndex != -1) {
+
+            double E_start = crossSectionData.get(crossSectionListEntryIndex).E_start ;
+            double E_end   = crossSectionData.get(crossSectionListEntryIndex).E_end   ;
+            rr             = crossSectionData.get(crossSectionListEntryIndex).rr      ;
+
+            //System.out.println("E_sart = " + E_start + ", E_end = " + E_end);
+            //System.out.println("E_0 = " + E0);
+
+            if (E0 > E_start && E0 < E_end) {
+
+                index = 2;
+                double energy[] = crossSectionData.get(crossSectionListEntryIndex).energies;
+                double sigma[]  = crossSectionData.get(crossSectionListEntryIndex).crossSections;
+                int j=0;
+
+                while (E0 > energy[j]) j++;
+
+                double m  = (sigma[j]- sigma[j-1]) / (energy[j] - energy[j-1]);
+                double dE = E0 - energy[j-1];
+
+                result = sigma[j-1] + dE * m;
+
+                //System.out.println("E_j-1 = " + energy[j-1] + ", E_j = " + energy[j]);
+                //System.out.println("s_j-1 = " + sigma[j-1] + ", s_j = " + sigma[j]);
+                //System.out.println("s = " + result);
+                //System.out.println("");
+            }
+        }
+
+        if (index == 0) {
+            result = F * getBSCrossSectionA(projectile, Z2, M2, theta);
+        } else if (index == 1) {
+            result = F * getBSCrossSectionB(projectile, Z2, M2, theta);
+        } else if (index == 2) {
+            if (rr){
+                result *= getBSCrossSectionA(projectile, Z2, M2, theta);
+            } else{
+               // Nothing to do here.
+            }
         }
 
         return result;
@@ -300,6 +350,8 @@ public final class KinematicsCalculator {
         sigmaBSA *= sigmaBSA;
         sigmaBSA /= M2*Math.pow(Math.sin(theta), 4)*sqrt;
         sigmaBSA *= FACTOR_BS * (Z1*Z1*Z2*Z2) / (E*E);
+
+        //unit: mb/sr
 
         return sigmaBSA;
     }

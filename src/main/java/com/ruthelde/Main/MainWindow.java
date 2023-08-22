@@ -14,6 +14,8 @@ import com.ruthelde.IBA.DataFile;
 import com.ruthelde.IBA.Detector.DetectorSetup;
 import com.ruthelde.IBA.ExperimentalSetup.*;
 import com.ruthelde.IBA.IDF_Converter;
+import com.ruthelde.IBA.Kinematics.CrossSectionData;
+import com.ruthelde.IBA.Kinematics.KinematicsCalculator;
 import com.ruthelde.IBA.Simulator.*;
 import com.ruthelde.Stopping.*;
 import com.ruthelde.Target.*;
@@ -100,7 +102,7 @@ public class MainWindow extends JFrame implements Observer {
 
     private boolean blockEvents;
     private boolean console;
-    private String lastFolder;
+    private String lastFolder; //TODO: Remove and replace uses by global variable
     private String currentFileName;
 
     //------------ Constructor ---------------------------------------------------------------------------------------//
@@ -818,6 +820,8 @@ public class MainWindow extends JFrame implements Observer {
 
     private void setLastFolder(String lastFolder) {
 
+        //TODO: Replace setters by introducing global variable to classes
+
         spectraPlotWindow.setLastFolder(lastFolder);
         depthPlotWindow.setLastFolder(lastFolder);
         stoppingPlotWindow.setLastFolder(lastFolder);
@@ -1484,7 +1488,7 @@ public class MainWindow extends JFrame implements Observer {
 
     private void initComponents() {
 
-        this.setTitle("Ruthelde V7.7.1 - 2023_05_16 (C) R. Heller");
+        this.setTitle("Ruthelde V7.8 - 2023_08_22 (C) R. Heller");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
         pack();
@@ -1888,6 +1892,39 @@ public class MainWindow extends JFrame implements Observer {
         calcMenu.add(compCorrMethod);
 
         calcMenu.add(new JSeparator());
+
+        JMenu crossSectionMenu = new JMenu("Cross sections");
+        JMenuItem itemAddCrossSectionFile = new JMenuItem("Add from .r33 file");
+        itemAddCrossSectionFile.addActionListener(e -> {
+            KinematicsCalculator.addCrossSectionData();
+            updateOpenPlotWindows();
+        });
+        crossSectionMenu.add(itemAddCrossSectionFile);
+        JMenuItem itemShowCrossSections = new JMenuItem("Show cross sections");
+        itemShowCrossSections.addActionListener(e -> {
+            String msg = "";
+            Object[] options = new Object[KinematicsCalculator.crossSectionData.size()];
+
+            if (KinematicsCalculator.crossSectionData.size() > 0) {
+                int index = 0;
+                for (CrossSectionData csd : KinematicsCalculator.crossSectionData) {
+                    options[index] = csd.name;
+                    index++;
+                    msg += "\n\n\n" + csd.name;
+                }
+                JOptionPane.showMessageDialog(null, msg, "Cross-section files", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(null, "No files loaded.", "Cross-section files", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+        crossSectionMenu.add(itemShowCrossSections);
+        JMenuItem itemClearCrossSections = new JMenuItem("Clear list");
+        itemClearCrossSections.addActionListener(e -> {
+            KinematicsCalculator.crossSectionData = new LinkedList<>();
+            updateOpenPlotWindows();
+        });
+        crossSectionMenu.add(itemClearCrossSections);
+        calcMenu.add(crossSectionMenu);
 
         JMenu stragglingModel = new JMenu("Straggling Model");
         ButtonGroup stragglingModels = new ButtonGroup();

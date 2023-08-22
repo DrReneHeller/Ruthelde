@@ -2,7 +2,7 @@ package com.ruthelde.Forms;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.ruthelde.Globals.GlobalColors;
+import com.ruthelde.Globals.Globals;
 import com.ruthelde.Helper.Helper;
 import com.ruthelde.IBA.CalculationSetup.CalculationSetup;
 import com.ruthelde.Stopping.*;
@@ -163,7 +163,7 @@ public class SingleSPCalculator extends JFrame {
         tfZ2.setText(Integer.toString(Z2));
         fillCBoxM2();
 
-        Color lblColor = GlobalColors.DEFAULT_LBL_COLOR;
+        Color lblColor = Globals.DEFAULT_LBL_COLOR;
 
         lblResultA.setForeground(lblColor);
         lblResultB.setForeground(lblColor);

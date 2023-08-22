@@ -2,7 +2,7 @@ package com.ruthelde.Forms;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.ruthelde.Globals.GlobalColors;
+import com.ruthelde.Globals.Globals;
 import com.ruthelde.Helper.Helper;
 import com.ruthelde.IBA.CalculationSetup.CalculationSetup;
 import com.ruthelde.IBA.CalculationSetup.ScreeningMode;
@@ -333,7 +333,7 @@ public class IBAKinematics extends JFrame {
 
         fillCBoxM2();
 
-        Color lblCol = GlobalColors.DEFAULT_LBL_COLOR;
+        Color lblCol = Globals.DEFAULT_LBL_COLOR;
         lblE0Prime.setForeground(lblCol);
         lblBSCrossSection.setForeground(lblCol);
         lblRecoilCrossSection.setForeground(lblCol);
