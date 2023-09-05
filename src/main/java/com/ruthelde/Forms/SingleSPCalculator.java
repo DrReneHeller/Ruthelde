@@ -30,7 +30,9 @@ public class SingleSPCalculator extends JFrame {
 
     private StoppingCalculationMode mode;
 
-    public SingleSPCalculator(Projectile projectile, CalculationSetup calculationSetup) {
+    private StoppingCalculator calculator;
+
+    public SingleSPCalculator(Projectile projectile, CalculationSetup calculationSetup, StoppingParaFile stoppingParaFile) {
 
         super("Elemental Stopping");
 
@@ -41,6 +43,8 @@ public class SingleSPCalculator extends JFrame {
         this.projectile = projectile;
         mode = calculationSetup.getStoppingPowerCalculationMode();
         initComponents();
+
+        calculator = new StoppingCalculator(stoppingParaFile);
         calculateStopping();
     }
 
@@ -75,7 +79,6 @@ public class SingleSPCalculator extends JFrame {
             M2 /= sumRatio;
         }
 
-        StoppingCalculator calculator = new StoppingCalculator();
         double Se = calculator.getStoppingPower(projectile, Z2, M2, mode, 0);
         double Sn = calculator.getStoppingPower(projectile, Z2, M2, mode, 1);
 

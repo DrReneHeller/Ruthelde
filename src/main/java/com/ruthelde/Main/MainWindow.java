@@ -93,6 +93,8 @@ public class MainWindow extends JFrame implements Observer {
     private IBAKinematics ibaKinematics;
     private SpectrumSimulator spectrumSimulator;
 
+    private StoppingParaFile stoppingParaFile;
+
     private GAEngineWorker gaEngineWorker;
     private DEParameter deParameter;
     private boolean gaRunning;
@@ -122,11 +124,14 @@ public class MainWindow extends JFrame implements Observer {
         Target tg = targetModel.getTarget();
         Target fo = foilModel.getTarget();
 
-        singleSPCalculator = new SingleSPCalculator(pr, calculationSetup);
-        stoppingPlotter = new StoppingPlotter(pr, tg, calculationSetup);
-        depthPlotter = new DepthPlotter(pr, tg, calculationSetup);
-        ibaKinematics = new IBAKinematics(experimentalSetup, tg, fo, calculationSetup);
-        spectrumSimulator = new SpectrumSimulator(experimentalSetup, detectorSetup, tg, fo, calculationSetup);
+        String filePath = System.getProperty("user.dir") + File.separator + "StoppingData.json";
+        stoppingParaFile = StoppingParaFile.load(filePath);
+
+        singleSPCalculator = new SingleSPCalculator(pr, calculationSetup, stoppingParaFile);
+        stoppingPlotter = new StoppingPlotter(pr, tg, calculationSetup, stoppingParaFile);
+        depthPlotter = new DepthPlotter(pr, tg, calculationSetup, stoppingParaFile);
+        ibaKinematics = new IBAKinematics(experimentalSetup, tg, fo, calculationSetup, stoppingParaFile);
+        spectrumSimulator = new SpectrumSimulator(experimentalSetup, detectorSetup, tg, fo, calculationSetup, stoppingParaFile);
         simulationResultPlotter = new SimulationResultPlotter(calculationSetup);
 
         initComponents();
@@ -308,6 +313,7 @@ public class MainWindow extends JFrame implements Observer {
 
     private void updateStoppingCalculation() {
 
+        stoppingPlotter.setCalculationSetup(calculationSetup);
         MyPlotGenerator pg = stoppingPlotter.getPlot();
         stoppingPlotWindow.setPlotSeries(pg.plotSeries);
         stoppingPlotWindow.getPlotProperties().xAxisName = pg.plotProperties.xAxisName;
@@ -317,6 +323,7 @@ public class MainWindow extends JFrame implements Observer {
 
     private void updateDepthCalculation() {
 
+        depthPlotter.setCalculationSetup(calculationSetup);
         MyPlotGenerator pg = depthPlotter.getPlot();
         depthPlotWindow.getPlotProperties().xAxisName = pg.plotProperties.xAxisName;
         depthPlotWindow.getPlotProperties().yAxisName = pg.plotProperties.yAxisName;
@@ -643,7 +650,6 @@ public class MainWindow extends JFrame implements Observer {
                             calculationSetup.setShowIsotopes(df.calculationSetup.isShowIsotopes());
                             calculationSetup.setShowLayers(df.calculationSetup.isShowLayers());
                             calculationSetup.setSimulateIsotopes(df.calculationSetup.isSimulateIsotopes());
-                            calculationSetup.setCorrectionFactors(df.calculationSetup.getCorrectionFactors());
 
                             spectrumSimulator.setCalculationSetup(calculationSetup);
 
@@ -676,12 +682,9 @@ public class MainWindow extends JFrame implements Observer {
 
                             spectrumSimulator.setStartChannel(deParameter.startCH);
                             spectrumSimulator.setStopChannel(deParameter.endCH);
-                            //tf_ch_min.setText("" + (int) df.deParameter.startCH);
-                            //tf_ch_max.setText("" + (int) df.deParameter.endCH);
                             tf_ch_min.setText("" + (int) deParameter.startCH);
                             tf_ch_max.setText("" + (int) deParameter.endCH);
                             spectrumSimulator.setExperimentalSpectrum(df.experimentalSpectrum);
-                            spectrumSimulator.applyStoppingCorrection();
 
                             targetModel.setTarget(df.target);
                             targetView.updateTarget();
@@ -1488,7 +1491,7 @@ public class MainWindow extends JFrame implements Observer {
 
     private void initComponents() {
 
-        this.setTitle("Ruthelde V7.8 - 2023_08_22 (C) R. Heller");
+        this.setTitle("Ruthelde V7.9 - 2023_09_05 (C) R. Heller");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
         pack();
@@ -1794,6 +1797,26 @@ public class MainWindow extends JFrame implements Observer {
         cBoxDPUnitY.addActionListener(e -> {
             if (!blockEvents) setDPUnitY();
         });
+
+        /*
+        tf_ch_min.addActionListener(e -> {
+            int value = Integer.parseInt(tf_ch_min.getText());
+            if (value > 0 && value < Integer.parseInt(tf_ch_max.getText())) {
+                spectrumSimulator.setStartChannel(value);
+                updateSimulation();
+                deParameter.startCH = value;
+            }
+        });
+
+        tf_ch_max.addActionListener(e -> {
+            int value = Integer.parseInt(tf_ch_max.getText());
+            if (value > 0 && value > Integer.parseInt(tf_ch_min.getText())) {
+                spectrumSimulator.setStopChannel(value);
+                updateSimulation();
+                deParameter.endCH = value;
+            }
+        });
+        */
     }
 
     private void buildMenu() {
@@ -1869,14 +1892,21 @@ public class MainWindow extends JFrame implements Observer {
 
         JMenu stopCalcMethod = new JMenu("Stopping Calculation");
         ButtonGroup stoppingMethods = new ButtonGroup();
-        JRadioButtonMenuItem mrb_st_zb = new JRadioButtonMenuItem("Ziegler Biersack");
+        JRadioButtonMenuItem mrb_st_zb = new JRadioButtonMenuItem("Ziegler Biersack (SRIM-98)");
+        JRadioButtonMenuItem mrb_st_zb_para_file = new JRadioButtonMenuItem("ZB - Stopping Parameters from File");
         mrb_st_zb.setSelected(true);
         mrb_st_zb.addActionListener(e -> {
             calculationSetup.setStoppingPowerCalculationMode(StoppingCalculationMode.ZB);
             updateOpenPlotWindows();
         });
+        mrb_st_zb_para_file.addActionListener(e -> {
+            calculationSetup.setStoppingPowerCalculationMode(StoppingCalculationMode.ZB_PARA_FILE);
+            updateOpenPlotWindows();
+        });
         stoppingMethods.add(mrb_st_zb);
         stopCalcMethod.add(mrb_st_zb);
+        stoppingMethods.add(mrb_st_zb_para_file);
+        stopCalcMethod.add(mrb_st_zb_para_file);
         calcMenu.add(stopCalcMethod);
 
         JMenu compCorrMethod = new JMenu("Compound Correction");

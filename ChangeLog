@@ -128,4 +128,10 @@
 
 2323_08_22 - V7.8
 
-    - Added support for loading and using .r33 cross section file
+    - Added support for loading and using .r33 cross-section files
+
+2023_09_05 - V7.9
+
+    - Added support to load parameters for ZB stopping calculation from file (In order to have this feature available the file "StoppingData.json" must be placed into he same folder as the Ruthelde.jar file)
+    - Moved stopping correction factor from simulation file to stopping parameter file ("StoppingData.json")
+    - Restricted stopping correction factor to electronic stopping

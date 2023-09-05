@@ -22,9 +22,9 @@ public class DepthPlotter {
     private StoppingCalculationMode stoppingPowerCalculationMode;
     private CompoundCalculationMode compoundCalculationMode;
 
-    public DepthPlotter (Projectile projectile, Target target, CalculationSetup calculationSetup) {
+    public DepthPlotter (Projectile projectile, Target target, CalculationSetup calculationSetup, StoppingParaFile stoppingParaFile) {
 
-        stoppingCalculator = new StoppingCalculator();
+        stoppingCalculator = new StoppingCalculator(stoppingParaFile);
 
         ECutOff = DEFAULT_E_CUTOFF ;
         unitX   = DEFAULT_UNIT_X   ;

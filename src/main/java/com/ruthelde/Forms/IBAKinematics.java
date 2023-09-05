@@ -47,7 +47,9 @@ public class IBAKinematics extends JFrame {
     private CompoundCalculationMode compoundCalculationMode;
     private ScreeningMode screeningMode;
 
-    public IBAKinematics(ExperimentalSetup experimentalSetup, Target target, Target foil, CalculationSetup calculationSetup) {
+    private StoppingParaFile stoppingParaFile;
+
+    public IBAKinematics(ExperimentalSetup experimentalSetup, Target target, Target foil, CalculationSetup calculationSetup, StoppingParaFile stoppingParaFile) {
 
         Z2 = DEFAULT_Z2;
         Z2old = DEFAULT_Z2;
@@ -58,6 +60,7 @@ public class IBAKinematics extends JFrame {
         this.experimentalSetup = experimentalSetup;
         this.target = target;
         this.foil = foil;
+        this.stoppingParaFile = stoppingParaFile;
 
         stoppingPowerCalculationMode = calculationSetup.getStoppingPowerCalculationMode();
         compoundCalculationMode = calculationSetup.getCompoundCalculationMode();
@@ -161,7 +164,7 @@ public class IBAKinematics extends JFrame {
         foilThickness = foil.getTotalThickness();
 
         projectile.setE(E0);
-        E0Prime = KinematicsCalculator.getEnergyInDepth(projectile, target, alpha, depth);
+        E0Prime = KinematicsCalculator.getEnergyInDepth(projectile, target, alpha, depth, stoppingParaFile);
         lblE0Prime.setText(Helper.dblToSciStr(E0Prime, 3));
 
         if (BSA) {
@@ -171,11 +174,11 @@ public class IBAKinematics extends JFrame {
             else sigma = 0.0d;
 
             projectile.setE(E1);
-            E1Prime = KinematicsCalculator.getEnergyAtSurface(projectile, target, alpha, theta, depth);
+            E1Prime = KinematicsCalculator.getEnergyAtSurface(projectile, target, alpha, theta, depth, stoppingParaFile);
 
             if (foilThickness > 0.1d) {
                 projectile.setE(E1Prime);
-                E2 = KinematicsCalculator.getEnergyInDepth(projectile, foil, 0.0d, foilThickness);
+                E2 = KinematicsCalculator.getEnergyInDepth(projectile, foil, 0.0d, foilThickness, stoppingParaFile);
             } else {
                 E2 = E1Prime;
             }
@@ -193,11 +196,11 @@ public class IBAKinematics extends JFrame {
                 else sigma = 0.0d;
 
                 projectile.setE(E1);
-                E1Prime = KinematicsCalculator.getEnergyAtSurface(projectile, target, alpha, theta, depth);
+                E1Prime = KinematicsCalculator.getEnergyAtSurface(projectile, target, alpha, theta, depth, stoppingParaFile);
 
                 if (foilThickness > 0.1d) {
                     projectile.setE(E1Prime);
-                    E2 = KinematicsCalculator.getEnergyInDepth(projectile, foil, 0.0d, foilThickness);
+                    E2 = KinematicsCalculator.getEnergyInDepth(projectile, foil, 0.0d, foilThickness, stoppingParaFile);
                 } else {
                     E2 = E1Prime;
                 }
@@ -224,11 +227,11 @@ public class IBAKinematics extends JFrame {
             projectile.setM(M2);
             projectile.setE(E1);
 
-            E1Prime = KinematicsCalculator.getEnergyAtSurface(projectile, target, alpha, theta, depth);
+            E1Prime = KinematicsCalculator.getEnergyAtSurface(projectile, target, alpha, theta, depth, stoppingParaFile);
 
             if (foilThickness > 0.1d) {
                 projectile.setE(E1Prime);
-                E2 = KinematicsCalculator.getEnergyInDepth(projectile, foil, 0.0d, foilThickness);
+                E2 = KinematicsCalculator.getEnergyInDepth(projectile, foil, 0.0d, foilThickness, stoppingParaFile);
             } else {
                 E2 = E1Prime;
             }

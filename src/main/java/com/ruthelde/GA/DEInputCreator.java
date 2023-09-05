@@ -85,7 +85,8 @@ public class DEInputCreator extends JFrame {
                 deParameter.numBins = bins;
 
             } catch (Exception ex) {
-                System.out.println("Failed to parse value: " + ex.toString());
+                System.out.println("Failed to parse value(s).");
+                ex.printStackTrace();
             }
 
             close();

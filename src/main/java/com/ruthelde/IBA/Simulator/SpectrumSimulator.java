@@ -29,6 +29,8 @@ public class SpectrumSimulator {
     private int startChannel, stopChannel            ;
     private double   LFF                             ;
 
+    private StoppingParaFile stoppingParaFile;
+
     double     S[][] ;
     double     EMax, EMin, dE;
 
@@ -38,7 +40,7 @@ public class SpectrumSimulator {
     //--------------------- Constructor ------------------------------------------------------------------------------//
 
     public SpectrumSimulator(ExperimentalSetup experimentalSetup, DetectorSetup detectorSetup, Target target,
-                             Target foil, CalculationSetup calculationSetup){
+                             Target foil, CalculationSetup calculationSetup, StoppingParaFile stoppingParaFile){
 
         numberOfChannels     = DEFAULT_NUMBER_OF_CHANNELS   ;
         experimentalSpectrum = new double[numberOfChannels] ;
@@ -48,9 +50,9 @@ public class SpectrumSimulator {
         this.detectorSetup      = detectorSetup      ;
         this.foil               = foil               ;
         this.calculationSetup   = calculationSetup   ;
+        this.stoppingParaFile   = stoppingParaFile   ;
 
-        stoppingCalculator = new StoppingCalculator();
-        stoppingCalculator.setCorrectionFactors(calculationSetup.getCorrectionFactors());
+        stoppingCalculator = new StoppingCalculator(stoppingParaFile);
 
         simulationData     = new SimulationData()    ;
 
@@ -129,10 +131,6 @@ public class SpectrumSimulator {
     public CalculationSetup getCalculationSetup() {return calculationSetup;}
 
     public ExperimentalSetup getExperimentalSetup() {return experimentalSetup;}
-
-    public void applyStoppingCorrection(){
-        stoppingCalculator.setCorrectionFactors(calculationSetup.getCorrectionFactors());
-    }
 
     //--------------------- Simulation -------------------------------------------------------------------------------//
 
@@ -648,7 +646,7 @@ public class SpectrumSimulator {
         Target foil = this.foil.getDeepCopy();
         CalculationSetup calculationSetup = this.calculationSetup.getDeepCopy();
 
-        SpectrumSimulator spSim = new SpectrumSimulator(experimentalSetup, detectorSetup, target, foil, calculationSetup);
+        SpectrumSimulator spSim = new SpectrumSimulator(experimentalSetup, detectorSetup, target, foil, calculationSetup, stoppingParaFile.getDeepCopy());
         double[] exp = new double[this.experimentalSpectrum.length];
         System.arraycopy(this.experimentalSpectrum, 0, exp, 0, this.experimentalSpectrum.length);
         spSim.setStartChannel(this.startChannel);

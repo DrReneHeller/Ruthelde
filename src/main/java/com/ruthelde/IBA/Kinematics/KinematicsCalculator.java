@@ -41,9 +41,9 @@ public final class KinematicsCalculator {
     }
 
 
-    public static double getEnergyInDepth(Projectile projectile, Target target, double incidentAngle, double depth) {
+    public static double getEnergyInDepth(Projectile projectile, Target target, double incidentAngle, double depth, StoppingParaFile stoppingParaFile) {
 
-        StoppingCalculator stoppingCalculator = new StoppingCalculator();
+        StoppingCalculator stoppingCalculator = new StoppingCalculator(stoppingParaFile);
 
         double E0               ;
         double remainingEnergy  ;
@@ -94,7 +94,7 @@ public final class KinematicsCalculator {
         return remainingEnergy;
     }
 
-    public static double getEnergyAtSurface(Projectile projectile, Target target, double alpha, double theta, double depth) {
+    public static double getEnergyAtSurface(Projectile projectile, Target target, double alpha, double theta, double depth, StoppingParaFile stoppingParaFile) {
 
         double E1_prime = 0.0d;
         double E1 = projectile.getE();
@@ -133,7 +133,7 @@ public final class KinematicsCalculator {
             inverseTarget.getLayerList().get(0).setThickness(newThickness);
 
             beta     = Math.abs(180.0d - alpha - theta);
-            E1_prime = getEnergyInDepth(projectile, inverseTarget, beta, depth);
+            E1_prime = getEnergyInDepth(projectile, inverseTarget, beta, depth, stoppingParaFile);
             inverseTarget.getLayerList().get(0).setThickness(thickness);
         }
 

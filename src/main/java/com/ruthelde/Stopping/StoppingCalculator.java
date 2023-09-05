@@ -10,9 +10,11 @@ final public class StoppingCalculator {
     private static final int MAX_ATOMIC_NUMBER = 92;
     private double[][] stoppingCoefficients;
 
+    private StoppingParaFile paraFile;
+
     private double[] correctionFactors;
 
-    public StoppingCalculator() {
+    public StoppingCalculator(StoppingParaFile stoppingParaFile) {
 
         stoppingCoefficients = new double[94][55];
 
@@ -31,19 +33,14 @@ final public class StoppingCalculator {
             System.arraycopy(DataTable.SCOEF, i * 54, stoppingCoefficients[i + 1], 1, 54);
         }
 
+        paraFile = stoppingParaFile;
+
         correctionFactors = new double[MAX_ATOMIC_NUMBER];
 
-        for (int i=0; i<MAX_ATOMIC_NUMBER; i++) correctionFactors[i] = 1.0d;
-    }
-
-    public void setCorrectionFactors(double[] correctionFactors){
-
-        if (correctionFactors != null && correctionFactors.length == MAX_ATOMIC_NUMBER) {
-
-            for (int i=0; i<MAX_ATOMIC_NUMBER; i++){
-
-                this.correctionFactors[i] = correctionFactors[i];
-            }
+        if (paraFile != null) {
+            for (int i=0; i<MAX_ATOMIC_NUMBER; i++) correctionFactors[i] = paraFile.data[i].scaling_factor;
+        } else {
+            for (int i=0; i<MAX_ATOMIC_NUMBER; i++) correctionFactors[i] = 1.0d;
         }
     }
 
@@ -64,8 +61,17 @@ final public class StoppingCalculator {
 
         if (Z1 >= 0 && Z1 <= MAX_ATOMIC_NUMBER && Z2>=0 && Z2 <= MAX_ATOMIC_NUMBER && M1>0 && M2>0) {
             switch (mode) {
-                case ZB:
-                    Se = calcElectronicStoppingZB(Z1, M1, Z2, E0);
+
+                case ZB :
+                    Se = calcElectronicStoppingZB(Z1, M1, Z2, E0, StoppingCalculationMode.ZB);
+                    Se *= correctionFactors[Z2-1];
+                    Sn = calcNuclearStoppingZB(Z1, M1, Z2, M2, E0);
+                    S  = Se + Sn;
+                    break;
+
+                case ZB_PARA_FILE:
+                    Se = calcElectronicStoppingZB(Z1, M1, Z2, E0, StoppingCalculationMode.ZB_PARA_FILE);
+                    Se *= correctionFactors[Z2-1];
                     Sn = calcNuclearStoppingZB(Z1, M1, Z2, M2, E0);
                     S  = Se + Sn;
                     break;
@@ -83,8 +89,6 @@ final public class StoppingCalculator {
                 result = S;
                 break;
         }
-
-        result = result * correctionFactors[Z2-1];
 
         return result;
     }
@@ -136,23 +140,23 @@ final public class StoppingCalculator {
      * Energy input in keV
      *
      */
-    private double calcElectronicStoppingZB(int Z1, double M1, int Z2, double E0) {
+    private double calcElectronicStoppingZB(int Z1, double M1, int Z2, double E0, StoppingCalculationMode calcMode) {
 
         double result = 0;
 
         //For Protons, Deuterons and Tritons
         if (Z1 == 1) {
-            result = calcElectronicStoppingHZB(Z2, E0 / M1);
+            result = calcElectronicStoppingHZB(Z2, E0 / M1, calcMode);
         }
 
         //For Helium
         if (Z1 == 2) {
-            result = calcElectronicStoppingHeZB(M1, Z2, E0);
+            result = calcElectronicStoppingHeZB(M1, Z2, E0, calcMode);
         }
 
         //For heavy ions
         if (Z1 > 2) {
-            result = calcElectronicStoppingHeavyZB(Z1, M1, Z2, E0);
+            result = calcElectronicStoppingHeavyZB(Z1, M1, Z2, E0, calcMode);
         }
 
         return result;
@@ -185,22 +189,76 @@ final public class StoppingCalculator {
      * Get electronic stopping for H/D/T by Ziegler/Biersack
      * EM = E0 / M1 = E0 (M1=1)
      */
-    private double calcElectronicStoppingHZB(int Z2, double EM) {
+    private double calcElectronicStoppingHZB(int Z2, double EM, StoppingCalculationMode calcMode) {
 
         double result = 0.0d;
 
-        double C1   = stoppingCoefficients[Z2][ 9];
-        double C2   = stoppingCoefficients[Z2][10];
-        double C3   = stoppingCoefficients[Z2][11];
-        double C4   = stoppingCoefficients[Z2][12];
-        double C5   = stoppingCoefficients[Z2][13];
-        double C6   = stoppingCoefficients[Z2][14];
-        double C7   = stoppingCoefficients[Z2][15];
-        double C8   = stoppingCoefficients[Z2][16];
-        double C9   = stoppingCoefficients[Z2][17];
-        double C10  = stoppingCoefficients[Z2][18];
-        double C11  = stoppingCoefficients[Z2][19];
-        double C12  = stoppingCoefficients[Z2][20];
+        double CA,CB;
+        double C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12;
+
+        switch (calcMode) {
+
+            case ZB:
+
+                CA = 0.0d;
+                CB = 1.0d;
+
+                C1   = stoppingCoefficients[Z2][ 9];
+                C2   = stoppingCoefficients[Z2][10];
+                C3   = stoppingCoefficients[Z2][11];
+                C4   = stoppingCoefficients[Z2][12];
+                C5   = stoppingCoefficients[Z2][13];
+                C6   = stoppingCoefficients[Z2][14];
+                C7   = stoppingCoefficients[Z2][15];
+                C8   = stoppingCoefficients[Z2][16];
+                C9   = stoppingCoefficients[Z2][17];
+                C10  = stoppingCoefficients[Z2][18];
+                C11  = stoppingCoefficients[Z2][19];
+                C12  = stoppingCoefficients[Z2][20];
+
+                break;
+
+            case ZB_PARA_FILE:
+
+                CA  = paraFile.data[Z2-1].params[0];
+                CB  = paraFile.data[Z2-1].params[1];
+
+                C1  = paraFile.data[Z2-1].params[2];
+                C2  = paraFile.data[Z2-1].params[3];
+                C3  = paraFile.data[Z2-1].params[4];
+                C4  = paraFile.data[Z2-1].params[5];
+                C5  = paraFile.data[Z2-1].params[6];
+                C6  = paraFile.data[Z2-1].params[7];
+                C7  = paraFile.data[Z2-1].params[8];
+                C8  = paraFile.data[Z2-1].params[9];
+                C9  = paraFile.data[Z2-1].params[10];
+                C10 = paraFile.data[Z2-1].params[11];
+                C11 = paraFile.data[Z2-1].params[12];
+                C12 = paraFile.data[Z2-1].params[13];
+
+                break;
+
+            default:
+
+                CA  = 0.0d;
+                CB  = 1.0d;
+
+                C1  = 0.0d;
+                C2  = 0.0d;
+                C3  = 0.0d;
+                C4  = 0.0d;
+                C5  = 0.0d;
+                C6  = 0.0d;
+                C7  = 0.0d;
+                C8  = 0.0d;
+                C9  = 0.0d;
+                C10 = 0.0d;
+                C11 = 0.0d;
+                C12 = 0.0d;
+
+                break;
+        }
+
 
         if (EM >= 10.0d && EM < 10000.0d) {
             double S_Low  = C1*Math.pow(EM,C2) + C3*Math.pow(EM,C4);
@@ -227,6 +285,10 @@ final public class StoppingCalculator {
             double S_elec_10 = S_Low_10 * S_High_10 / (S_Low_10 + S_High_10);
 
             result = S_elec_10 * Math.pow(EM/10,y);
+
+            if (calcMode == StoppingCalculationMode.ZB_PARA_FILE){
+                result += CA / Math.pow(EM,CB);
+            }
         }
 
         return result;
@@ -235,7 +297,7 @@ final public class StoppingCalculator {
     /**
      * Get electronic stopping for He by Ziegler/Biersack
      */
-    private double calcElectronicStoppingHeZB(double M1, int Z2, double E0) {
+    private double calcElectronicStoppingHeZB(double M1, int Z2, double E0, StoppingCalculationMode calcMode) {
 
         double C0   =  0.286500d;
         double C1   =  0.126600d;
@@ -270,7 +332,7 @@ final public class StoppingCalculator {
         A = (1.0d + (0.007d + 0.00005*Z2)*Math.exp(-Math.pow(7.6d - Math.log(HE),2)));
         HEH = HEH * A * A;
 
-        double S_p = calcElectronicStoppingHZB(Z2, E0 / M1);
+        double S_p = calcElectronicStoppingHZB(Z2, E0 / M1, calcMode);
         double result = (S_p * HEH * 4.0d);
 
         if (EM <= HE0) {
@@ -283,7 +345,7 @@ final public class StoppingCalculator {
     /**
      * Get electronic stopping for heavy projectiles by Ziegler/Biersack
      */
-    private double calcElectronicStoppingHeavyZB(int Z1, double M1, int Z2, double E0) {
+    private double calcElectronicStoppingHeavyZB(int Z1, double M1, int Z2, double E0, StoppingCalculationMode calcMode) {
 
         double EM = E0/M1;
         double YRMIN = 0.13d;
@@ -341,7 +403,7 @@ final public class StoppingCalculator {
             A = VRMIN*VRMIN - 0.8d*VFERMI1*VFERMI1; if (A<0) {A=0;}
             VMIN = 0.5d * (VRMIN + Math.sqrt(A));
             EEE = 25 * VMIN * VMIN;
-            SP = calcElectronicStoppingHZB(Z2, EEE);
+            SP = calcElectronicStoppingHZB(Z2, EEE, calcMode);
              /*Add Fermi Velocity Correction to Low Energy value*/
             if(EEE<=9999)EION=EEE;else EION=9999; /*Correction is only valid for E <1E4 keV/amu*/
             index = 0;
@@ -365,7 +427,7 @@ final public class StoppingCalculator {
         } else {
 
             //Not Low velocity
-            SP= calcElectronicStoppingHZB(Z2, EM);
+            SP= calcElectronicStoppingHZB(Z2, EM, calcMode);
             if(EM<=9999){EION=EM;}else {EION=9999;}
             index = 0;
 

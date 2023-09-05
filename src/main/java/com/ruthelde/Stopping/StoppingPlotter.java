@@ -21,9 +21,9 @@ public class StoppingPlotter {
     private CompoundCalculationMode compoundCalculationMode;
     private Projectile projectile;
 
-    public StoppingPlotter(Projectile projectile, Target target, CalculationSetup calculationSetup) {
+    public StoppingPlotter(Projectile projectile, Target target, CalculationSetup calculationSetup, StoppingParaFile stoppingParaFile) {
 
-        stoppingCalculator = new StoppingCalculator();
+        stoppingCalculator = new StoppingCalculator(stoppingParaFile);
 
         EMin = DEFAULT_E_MIN ;
         EMax = DEFAULT_E_MAX ;
