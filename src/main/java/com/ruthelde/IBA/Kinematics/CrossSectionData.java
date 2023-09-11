@@ -25,7 +25,7 @@ public class CrossSectionData {
     public CrossSectionData(){
     }
 
-    public boolean loadFromFile(){
+    public boolean loadFromFile(String path){
 
         String currentLine, temp;
         BufferedReader inputBuffer;
@@ -35,15 +35,21 @@ public class CrossSectionData {
         boolean foundUnit = false;
         boolean status = false;
 
-        final JFileChooser fc;
-        if (Globals.lastFolder != null) fc = new JFileChooser(Globals.lastFolder);
-        else fc = new JFileChooser();
-        int returnVal = fc.showOpenDialog(null);
-
         File file = null;
-        if (returnVal == JFileChooser.APPROVE_OPTION){
-            file = fc.getSelectedFile();
-            Globals.lastFolder = fc.getSelectedFile().getParent();
+
+        if(path == null) {
+
+            final JFileChooser fc;
+            if (Globals.lastFolder != null) fc = new JFileChooser(Globals.lastFolder);
+            else fc = new JFileChooser();
+            int returnVal = fc.showOpenDialog(null);
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                file = fc.getSelectedFile();
+                Globals.lastFolder = fc.getSelectedFile().getParent();
+            }
+        } else {
+            file = new File(path);
         }
 
         try {

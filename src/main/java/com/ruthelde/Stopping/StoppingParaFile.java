@@ -19,22 +19,25 @@ public class StoppingParaFile {
 
         StoppingParaFile result = null;
 
-        File file = new File(fileName);
+        if(fileName != null && fileName != "") {
 
-        if (file.exists()){
+            File file = new File(fileName);
 
-            Gson gson = new Gson();
+            if (file.exists()) {
 
-            try {
-                FileReader fr = new FileReader(file);
-                result = gson.fromJson(fr, StoppingParaFile.class);
-                System.out.println("Stopping data successfully imported from " + file.getName());
-            } catch (Exception ex){
-                System.out.println("Error loading stopping data.");
-                ex.printStackTrace();
+                Gson gson = new Gson();
+
+                try {
+                    FileReader fr = new FileReader(file);
+                    result = gson.fromJson(fr, StoppingParaFile.class);
+                    System.out.println("Stopping data successfully imported from " + file.getName());
+                } catch (Exception ex) {
+                    System.out.println("Error loading stopping data.");
+                    ex.printStackTrace();
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "StoppingData.json not found!");
             }
-        } else {
-            JOptionPane.showMessageDialog(null, "StoppingData.json not found!");
         }
 
         return result;

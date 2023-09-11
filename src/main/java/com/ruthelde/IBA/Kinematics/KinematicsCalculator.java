@@ -22,10 +22,10 @@ public final class KinematicsCalculator {
         setCompoundCalculationMode(DEFAULT_COMPOUND_MODE);
     }
 
-    public static void addCrossSectionData(){
+    public static void addCrossSectionData(String path){
 
         CrossSectionData csde = new CrossSectionData();
-        if (csde.loadFromFile()) crossSectionData.add(csde);
+        if (csde.loadFromFile(path)) crossSectionData.add(csde);
     }
 
     public static void setStoppingPowerCalculationMode(StoppingCalculationMode _stoppingPowerCalculationMode) {

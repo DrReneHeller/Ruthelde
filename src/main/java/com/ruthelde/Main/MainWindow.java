@@ -604,6 +604,13 @@ public class MainWindow extends JFrame implements Observer {
 
                             result = true;
 
+                            stoppingParaFile = StoppingParaFile.load(df.calculationSetup.stoppingData);
+
+                            if (df.calculationSetup.crossSectionData != null && df.calculationSetup.crossSectionData.length > 0) {
+                                for (String path : df.calculationSetup.crossSectionData)
+                                    KinematicsCalculator.addCrossSectionData(path);
+                            }
+
                             tfExpE0.setText(Helper.dblToDecStr(df.experimentalSetup.getE0(), 2));
                             experimentalSetup.setE0(df.experimentalSetup.getE0());
 
@@ -650,6 +657,7 @@ public class MainWindow extends JFrame implements Observer {
                             calculationSetup.setShowIsotopes(df.calculationSetup.isShowIsotopes());
                             calculationSetup.setShowLayers(df.calculationSetup.isShowLayers());
                             calculationSetup.setSimulateIsotopes(df.calculationSetup.isSimulateIsotopes());
+                            calculationSetup.setStoppingPowerCalculationMode(df.calculationSetup.getStoppingPowerCalculationMode());
 
                             spectrumSimulator.setCalculationSetup(calculationSetup);
 
@@ -1491,7 +1499,7 @@ public class MainWindow extends JFrame implements Observer {
 
     private void initComponents() {
 
-        this.setTitle("Ruthelde V7.9 - 2023_09_05 (C) R. Heller");
+        this.setTitle("Ruthelde V7.9.1 - 2023_09_11 (C) R. Heller");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
         pack();
@@ -1926,7 +1934,7 @@ public class MainWindow extends JFrame implements Observer {
         JMenu crossSectionMenu = new JMenu("Cross sections");
         JMenuItem itemAddCrossSectionFile = new JMenuItem("Add from .r33 file");
         itemAddCrossSectionFile.addActionListener(e -> {
-            KinematicsCalculator.addCrossSectionData();
+            KinematicsCalculator.addCrossSectionData(null);
             updateOpenPlotWindows();
         });
         crossSectionMenu.add(itemAddCrossSectionFile);

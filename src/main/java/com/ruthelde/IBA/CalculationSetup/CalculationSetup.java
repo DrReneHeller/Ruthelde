@@ -13,6 +13,10 @@ public class CalculationSetup {
     public static final boolean                 DEFAULT_SIMULATE_ISOTOPES        = true                          ;
 
     private StoppingCalculationMode stoppingPowerCalculationMode ;
+
+    public String stoppingData                                   ;
+
+    public String[] crossSectionData                             ;
     private CompoundCalculationMode compoundCalculationMode      ;
     private ScreeningMode           screeningMode                ;
     private StragglingMode          stragglingMode               ;

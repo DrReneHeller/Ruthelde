@@ -135,3 +135,7 @@
     - Added support to load parameters for ZB stopping calculation from file (In order to have this feature available the file "StoppingData.json" must be placed into he same folder as the Ruthelde.jar file)
     - Moved stopping correction factor from simulation file to stopping parameter file ("StoppingData.json")
     - Restricted stopping correction factor to electronic stopping
+
+2023_09_11 - V7.9.1
+
+    - Included section for cross-section data and stopping data in simulation input file
