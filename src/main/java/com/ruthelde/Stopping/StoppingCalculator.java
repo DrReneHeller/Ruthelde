@@ -13,6 +13,7 @@ final public class StoppingCalculator {
     private StoppingParaFile paraFile;
 
     private double[] correctionFactors;
+    private String[] parametrizations;
 
     public StoppingCalculator(StoppingParaFile stoppingParaFile) {
 
@@ -36,11 +37,19 @@ final public class StoppingCalculator {
         paraFile = stoppingParaFile;
 
         correctionFactors = new double[MAX_ATOMIC_NUMBER];
+        parametrizations = new String[MAX_ATOMIC_NUMBER];
 
         if (paraFile != null) {
-            for (int i=0; i<MAX_ATOMIC_NUMBER; i++) correctionFactors[i] = paraFile.data[i].scaling_factor;
+            for (int i=0; i<MAX_ATOMIC_NUMBER; i++) {
+                correctionFactors[i] = paraFile.data[i].correction_factor;
+                parametrizations[i] = paraFile.data[i].parametrization;
+            }
+
         } else {
-            for (int i=0; i<MAX_ATOMIC_NUMBER; i++) correctionFactors[i] = 1.0d;
+            for (int i=0; i<MAX_ATOMIC_NUMBER; i++) {
+                correctionFactors[i] = 1.0d;
+                parametrizations[i] = null;
+            }
         }
     }
 
@@ -69,8 +78,8 @@ final public class StoppingCalculator {
                     S  = Se + Sn;
                     break;
 
-                case ZB_PARA_FILE:
-                    Se = calcElectronicStoppingZB(Z1, M1, Z2, E0, StoppingCalculationMode.ZB_PARA_FILE);
+                case PARA_FILE:
+                    Se = calcElectronicStoppingZB(Z1, M1, Z2, E0, StoppingCalculationMode.PARA_FILE);
                     Se *= correctionFactors[Z2-1];
                     Sn = calcNuclearStoppingZB(Z1, M1, Z2, M2, E0);
                     S  = Se + Sn;
@@ -144,19 +153,49 @@ final public class StoppingCalculator {
 
         double result = 0;
 
-        //For Protons, Deuterons and Tritons
-        if (Z1 == 1) {
-            result = calcElectronicStoppingHZB(Z2, E0 / M1, calcMode);
-        }
+        if (calcMode.equals(StoppingCalculationMode.PARA_FILE) && parametrizations[Z2-1].equals("MEE2024")){
 
-        //For Helium
-        if (Z1 == 2) {
-            result = calcElectronicStoppingHeZB(M1, Z2, E0, calcMode);
-        }
+            double _s  = paraFile.data[Z2-1].params[0];
+            double _p  = paraFile.data[Z2-1].params[1];
+            double _a0 = paraFile.data[Z2-1].params[2];
+            double _a1 = paraFile.data[Z2-1].params[3];
+            double _a2 = paraFile.data[Z2-1].params[4];
+            double _a3 = paraFile.data[Z2-1].params[5];
+            double _f1 = paraFile.data[Z2-1].params[6];
+            double _q  = paraFile.data[Z2-1].params[7];
+            double _r  = paraFile.data[Z2-1].params[8];
+            double _b0 = paraFile.data[Z2-1].params[9];
+            double _b1 = paraFile.data[Z2-1].params[10];
+            double _b2 = paraFile.data[Z2-1].params[11];
+            double _b3 = paraFile.data[Z2-1].params[12];
+            double _f2 = paraFile.data[Z2-1].params[13];
 
-        //For heavy ions
-        if (Z1 > 2) {
-            result = calcElectronicStoppingHeavyZB(Z1, M1, Z2, E0, calcMode);
+            double EM = E0 / (M1*1000.0d);
+
+            double s1 = _f1 * Math.pow(EM, _s) * Math.log(2.7183d + _p * EM);
+            s1 /= _a0 +  _a1 * Math.pow(EM, 0.25d) + _a2 * Math.pow(EM, 0.5d) + _a3 * Math.pow(EM, 1.0d+_s);
+
+            double s2 = _f2 * Math.pow(EM, _q) * Math.log(2.7183d + _r * EM);
+            s2 /= _b0 +  _b1 * Math.pow(EM, 0.25d) + _b2 * Math.pow(EM, 0.5d) + _b3 * Math.pow(EM, 1.0d+_q);
+
+            result = s1 + s2;
+
+        } else {
+
+            //For Protons, Deuterons and Tritons
+            if (Z1 == 1) {
+                result = calcElectronicStoppingHZB(Z2, E0 / M1, calcMode);
+            }
+
+            //For Helium
+            if (Z1 == 2) {
+                result = calcElectronicStoppingHeZB(M1, Z2, E0, calcMode);
+            }
+
+            //For heavy ions
+            if (Z1 > 2) {
+                result = calcElectronicStoppingHeavyZB(Z1, M1, Z2, E0, calcMode);
+            }
         }
 
         return result;
@@ -200,9 +239,6 @@ final public class StoppingCalculator {
 
             case ZB:
 
-                CA = 0.0d;
-                CB = 1.0d;
-
                 C1   = stoppingCoefficients[Z2][ 9];
                 C2   = stoppingCoefficients[Z2][10];
                 C3   = stoppingCoefficients[Z2][11];
@@ -216,79 +252,96 @@ final public class StoppingCalculator {
                 C11  = stoppingCoefficients[Z2][19];
                 C12  = stoppingCoefficients[Z2][20];
 
+                if (EM >= 10.0d && EM < 10000.0d) {
+                    double S_Low  = C1*Math.pow(EM,C2) + C3*Math.pow(EM,C4);
+                    double S_High = C5/(Math.pow(EM,C6))*Math.log(C7/EM + C8*EM);
+                    result = S_Low * S_High / (S_Low + S_High);
+                }
+
+                if (EM >= 10000.0d) {
+                    double x = Math.log(EM)/EM;
+                    result = C9 + C10*x + C11*x*x + C12/x;
+                }
+
+                if (EM < 10.0d) {
+
+                    double y;
+
+                    if (Z2 > 6){
+                        y = 0.45d;
+                    } else {
+                        y = 0.35d;
+                    }
+
+                    double S_Low_10  = C1*Math.pow(10,C2) + C3*Math.pow(10,C4);
+                    double S_High_10 = C5/(Math.pow(10,C6))*Math.log(C7/10 + C8*10);
+                    double S_elec_10 = S_Low_10 * S_High_10 / (S_Low_10 + S_High_10);
+
+                    result = S_elec_10 * Math.pow(EM/10,y);
+                }
+
                 break;
 
-            case ZB_PARA_FILE:
+            case PARA_FILE:
 
-                CA  = paraFile.data[Z2-1].params[0];
-                CB  = paraFile.data[Z2-1].params[1];
+               switch(parametrizations[Z2-1]){
 
-                C1  = paraFile.data[Z2-1].params[2];
-                C2  = paraFile.data[Z2-1].params[3];
-                C3  = paraFile.data[Z2-1].params[4];
-                C4  = paraFile.data[Z2-1].params[5];
-                C5  = paraFile.data[Z2-1].params[6];
-                C6  = paraFile.data[Z2-1].params[7];
-                C7  = paraFile.data[Z2-1].params[8];
-                C8  = paraFile.data[Z2-1].params[9];
-                C9  = paraFile.data[Z2-1].params[10];
-                C10 = paraFile.data[Z2-1].params[11];
-                C11 = paraFile.data[Z2-1].params[12];
-                C12 = paraFile.data[Z2-1].params[13];
+                   case "ZBL+BG":
+
+                       CA  = paraFile.data[Z2-1].params[0];
+                       CB  = paraFile.data[Z2-1].params[1];
+
+                       C1  = paraFile.data[Z2-1].params[2];
+                       C2  = paraFile.data[Z2-1].params[3];
+                       C3  = paraFile.data[Z2-1].params[4];
+                       C4  = paraFile.data[Z2-1].params[5];
+                       C5  = paraFile.data[Z2-1].params[6];
+                       C6  = paraFile.data[Z2-1].params[7];
+                       C7  = paraFile.data[Z2-1].params[8];
+                       C8  = paraFile.data[Z2-1].params[9];
+                       C9  = paraFile.data[Z2-1].params[10];
+                       C10 = paraFile.data[Z2-1].params[11];
+                       C11 = paraFile.data[Z2-1].params[12];
+                       C12 = paraFile.data[Z2-1].params[13];
+
+                       if (EM >= 10.0d && EM < 10000.0d) {
+                           double S_Low  = C1*Math.pow(EM,C2) + C3*Math.pow(EM,C4);
+                           double S_High = C5/(Math.pow(EM,C6))*Math.log(C7/EM + C8*EM);
+                           result = S_Low * S_High / (S_Low + S_High);
+                       }
+
+                       if (EM >= 10000.0d) {
+                           double x = Math.log(EM)/EM;
+                           result = C9 + C10*x + C11*x*x + C12/x;
+                       }
+
+                       if (EM < 10.0d) {
+
+                           double y;
+
+                           if (Z2 > 6){
+                               y = 0.45d;
+                           } else {
+                               y = 0.35d;
+                           }
+
+                           double S_Low_10  = C1*Math.pow(10,C2) + C3*Math.pow(10,C4);
+                           double S_High_10 = C5/(Math.pow(10,C6))*Math.log(C7/10 + C8*10);
+                           double S_elec_10 = S_Low_10 * S_High_10 / (S_Low_10 + S_High_10);
+
+                           result = S_elec_10 * Math.pow(EM/10,y);
+
+                           result += CA / Math.pow(EM,CB);
+                       }
+
+                       break;
+               }
 
                 break;
 
             default:
 
-                CA  = 0.0d;
-                CB  = 1.0d;
-
-                C1  = 0.0d;
-                C2  = 0.0d;
-                C3  = 0.0d;
-                C4  = 0.0d;
-                C5  = 0.0d;
-                C6  = 0.0d;
-                C7  = 0.0d;
-                C8  = 0.0d;
-                C9  = 0.0d;
-                C10 = 0.0d;
-                C11 = 0.0d;
-                C12 = 0.0d;
-
                 break;
-        }
-
-
-        if (EM >= 10.0d && EM < 10000.0d) {
-            double S_Low  = C1*Math.pow(EM,C2) + C3*Math.pow(EM,C4);
-            double S_High = C5/(Math.pow(EM,C6))*Math.log(C7/EM + C8*EM);
-            result = S_Low * S_High / (S_Low + S_High);
-        }
-
-        if (EM >= 10000.0d) {
-            double x = Math.log(EM)/EM;
-            result = C9 + C10*x + C11*x*x + C12/x;
-        }
-
-        if (EM < 10.0d) {
-            double y;
-
-            if (Z2 > 6){
-                y = 0.45d;
-            } else {
-                y = 0.35d;
-            }
-
-            double S_Low_10  = C1*Math.pow(10,C2) + C3*Math.pow(10,C4);
-            double S_High_10 = C5/(Math.pow(10,C6))*Math.log(C7/10 + C8*10);
-            double S_elec_10 = S_Low_10 * S_High_10 / (S_Low_10 + S_High_10);
-
-            result = S_elec_10 * Math.pow(EM/10,y);
-
-            if (calcMode == StoppingCalculationMode.ZB_PARA_FILE){
-                result += CA / Math.pow(EM,CB);
-            }
         }
 
         return result;

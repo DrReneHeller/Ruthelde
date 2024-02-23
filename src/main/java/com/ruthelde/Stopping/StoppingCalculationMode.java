@@ -3,7 +3,7 @@ package com.ruthelde.Stopping;
 
 public enum StoppingCalculationMode {
 
-    ZB("Ziegler-Biersack"), ZB_PARA_FILE("ZB - Stopping Parameters from File");
+    ZB("Ziegler-Biersack"), PARA_FILE("Stopping Parameters from File");
 
     private final String displayed_text;
 

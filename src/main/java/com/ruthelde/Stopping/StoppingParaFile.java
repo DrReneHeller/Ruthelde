@@ -7,7 +7,8 @@ import java.io.File;
 import java.io.FileReader;
 
 public class StoppingParaFile {
-
+    
+    public String projectile, Z1, version;
     public StoppingCorrectionEntry[] data;
 
     public StoppingParaFile(StoppingCorrectionEntry[] data){

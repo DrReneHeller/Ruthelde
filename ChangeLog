@@ -139,3 +139,8 @@
 2023_09_11 - V7.9.1
 
     - Included section for cross-section data and stopping data in simulation input file
+
+
+2024_02_23 - V7.9.2
+
+    - Changed format of stopping parameter input file and enabled individual parametrization for each element

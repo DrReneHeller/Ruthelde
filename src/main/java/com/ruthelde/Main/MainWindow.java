@@ -1499,7 +1499,7 @@ public class MainWindow extends JFrame implements Observer {
 
     private void initComponents() {
 
-        this.setTitle("Ruthelde V7.9.1 - 2023_09_11 (C) R. Heller");
+        this.setTitle("Ruthelde V7.9.2 - 2024_02_22 (C) R. Heller");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
         pack();
@@ -1901,14 +1901,14 @@ public class MainWindow extends JFrame implements Observer {
         JMenu stopCalcMethod = new JMenu("Stopping Calculation");
         ButtonGroup stoppingMethods = new ButtonGroup();
         JRadioButtonMenuItem mrb_st_zb = new JRadioButtonMenuItem("Ziegler Biersack (SRIM-98)");
-        JRadioButtonMenuItem mrb_st_zb_para_file = new JRadioButtonMenuItem("ZB - Stopping Parameters from File");
+        JRadioButtonMenuItem mrb_st_zb_para_file = new JRadioButtonMenuItem("Stopping Parameters from File");
         mrb_st_zb.setSelected(true);
         mrb_st_zb.addActionListener(e -> {
             calculationSetup.setStoppingPowerCalculationMode(StoppingCalculationMode.ZB);
             updateOpenPlotWindows();
         });
         mrb_st_zb_para_file.addActionListener(e -> {
-            calculationSetup.setStoppingPowerCalculationMode(StoppingCalculationMode.ZB_PARA_FILE);
+            calculationSetup.setStoppingPowerCalculationMode(StoppingCalculationMode.PARA_FILE);
             updateOpenPlotWindows();
         });
         stoppingMethods.add(mrb_st_zb);
