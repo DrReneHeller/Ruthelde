@@ -37,6 +37,11 @@ public class DepthPlotter {
         this.target = target;
     }
 
+    public void setStoppingParaFile(StoppingParaFile stoppingParaFile){
+
+        stoppingCalculator.setStoppingParaFile(stoppingParaFile);
+    }
+
     public void setProjectile(Projectile projectile) {
         if (projectile != null) {
             this.projectile = projectile;

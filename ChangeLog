@@ -144,3 +144,7 @@
 2024_02_23 - V7.9.2
 
     - Changed format of stopping parameter input file and enabled individual parametrization for each element
+
+2024_02_27 - V7.9.3
+
+    - Fixed bug related to loading simulation file and stopping parameter file

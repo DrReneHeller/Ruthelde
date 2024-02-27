@@ -34,6 +34,11 @@ final public class StoppingCalculator {
             System.arraycopy(DataTable.SCOEF, i * 54, stoppingCoefficients[i + 1], 1, 54);
         }
 
+        setStoppingParaFile(stoppingParaFile);
+    }
+
+    public void setStoppingParaFile(StoppingParaFile stoppingParaFile){
+
         paraFile = stoppingParaFile;
 
         correctionFactors = new double[MAX_ATOMIC_NUMBER];
@@ -125,6 +130,14 @@ final public class StoppingCalculator {
                 for (Element element : layer.getElementList()) {
                     elementContribution = element.getRatio() / sumOfAllAtomicRatios;
                     sumOfAllIsotopeRatios = 0.0d;
+
+                    /*
+                    System.out.print("Calc Stopping: for Z2 = " + element.getAtomicNumber() + ", Mode = " + calcMode);
+                    if (calcMode.equals(StoppingCalculationMode.PARA_FILE)){
+                        System.out.print(", Parametrization = " + parametrizations[element.getAtomicNumber()-1]);
+                    }
+                    System.out.println();
+                    */
 
                     for (Isotope isotope : element.getIsotopeList()) {
                         sumOfAllIsotopeRatios += isotope.getAbundance();

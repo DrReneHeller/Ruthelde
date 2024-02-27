@@ -48,6 +48,11 @@ public class SingleSPCalculator extends JFrame {
         calculateStopping();
     }
 
+    public void setStoppingParaFile(StoppingParaFile stoppingParaFile) {
+
+        calculator.setStoppingParaFile(stoppingParaFile);
+    }
+
     public void setProjectile(Projectile projectile) {
         if (projectile != null) {
             this.projectile = projectile;
@@ -260,4 +265,5 @@ public class SingleSPCalculator extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return rootPanel;
     }
+
 }

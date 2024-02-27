@@ -606,6 +606,12 @@ public class MainWindow extends JFrame implements Observer {
 
                             stoppingParaFile = StoppingParaFile.load(df.calculationSetup.stoppingData);
 
+                            ibaKinematics.setStoppingParaFile(stoppingParaFile);
+                            singleSPCalculator.setStoppingParaFile(stoppingParaFile);
+                            stoppingPlotter.setStoppingParaFile(stoppingParaFile);
+                            depthPlotter.setStoppingParaFile(stoppingParaFile);
+                            spectrumSimulator.setStoppingParaFile(stoppingParaFile);
+
                             if (df.calculationSetup.crossSectionData != null && df.calculationSetup.crossSectionData.length > 0) {
                                 for (String path : df.calculationSetup.crossSectionData)
                                     KinematicsCalculator.addCrossSectionData(path);
@@ -659,6 +665,7 @@ public class MainWindow extends JFrame implements Observer {
                             calculationSetup.setSimulateIsotopes(df.calculationSetup.isSimulateIsotopes());
                             calculationSetup.setStoppingPowerCalculationMode(df.calculationSetup.getStoppingPowerCalculationMode());
 
+                            ibaKinematics.setCalculationSetup(calculationSetup);
                             spectrumSimulator.setCalculationSetup(calculationSetup);
 
                             blockEvents = true;
@@ -1499,7 +1506,7 @@ public class MainWindow extends JFrame implements Observer {
 
     private void initComponents() {
 
-        this.setTitle("Ruthelde V7.9.2 - 2024_02_22 (C) R. Heller");
+        this.setTitle("Ruthelde V7.9.3 - 2024_02_27 (C) R. Heller");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
         pack();

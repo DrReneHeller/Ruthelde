@@ -36,6 +36,11 @@ public class StoppingPlotter {
         compoundCalculationMode      = calculationSetup.getCompoundCalculationMode();
     }
 
+    public void setStoppingParaFile(StoppingParaFile stoppingParaFile){
+
+        stoppingCalculator.setStoppingParaFile(stoppingParaFile);
+    }
+
     public void setProjectile(Projectile projectile) {
         if (projectile != null) {
             this.projectile = projectile;

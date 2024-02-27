@@ -63,6 +63,11 @@ public class SpectrumSimulator {
         simulateSpectrum();
     }
 
+    public void setStoppingParaFile(StoppingParaFile stoppingParaFile){
+
+        stoppingCalculator.setStoppingParaFile(stoppingParaFile);
+    }
+
 
     //--------------------- Getter / Setter --------------------------------------------------------------------------//
 

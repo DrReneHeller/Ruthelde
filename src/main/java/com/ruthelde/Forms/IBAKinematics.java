@@ -70,6 +70,12 @@ public class IBAKinematics extends JFrame {
         calcAndDraw();
     }
 
+    public void setStoppingParaFile(StoppingParaFile stoppingParaFile) {
+
+        this.stoppingParaFile = stoppingParaFile;
+    }
+
+
     public void setExperimentalSetup(ExperimentalSetup experimentalSetup) {
         if (experimentalSetup != null) {
             this.experimentalSetup = experimentalSetup;
@@ -562,4 +568,5 @@ public class IBAKinematics extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return rootPanel;
     }
+
 }
