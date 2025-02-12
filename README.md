@@ -1,9 +1,6 @@
 # Ruthelde
 
-!! This repository is not continued anymore  !!
-!! A new version of RUTHELDE using a modern  !!
-!! Client-Server approach was relased and is !!
-!! available under the following link.       !!
+This repository is not continued anymore. A new version of RUTHELDE using a modern Client-Server approach was relased and is available under the following link:
 
 https://github.com/DrReneHeller/Ruthelde-8
 
